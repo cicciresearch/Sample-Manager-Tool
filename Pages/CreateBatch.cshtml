@@ -1,0 +1,124 @@
+@page
+@model Cicci.SampleManager.Pages.CreateBatchModel
+
+@{
+    ViewData["Title"] = "New Batch";
+}
+
+<div class="sample-page">
+    <div class="form-header">
+        <div class="eyebrow">
+            CICCI RESEARCH
+        </div>
+
+        <h1>New Batch</h1>
+        <p>
+            Create a production batch and automatically generate
+            its samples and devices.
+        </p>
+    </div>
+
+    <form method="post" class="sample-form">
+        <div asp-validation-summary="ModelOnly"
+             class="validation-message">
+        </div>
+
+        <div class="form-section">
+            <h2>Batch</h2>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label asp-for="Batch.Code">
+                        Batch code
+                    </label>
+
+                    <input asp-for="Batch.Code"
+                           placeholder="e.g. B2026-001" />
+
+                    <span asp-validation-for="Batch.Code"
+                          class="validation-message">
+                    </span>
+                </div>
+
+                <div class="form-field">
+                    <label asp-for="Batch.ProductionDate">
+                        Production date
+                    </label>
+
+                    <input asp-for="Batch.ProductionDate"
+                           type="date" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Sample Count</h2>
+            <div class="form-grid">
+                <div class="form-field">
+                    <label asp-for="SampleCount">
+                        Number of Substrates
+                    </label>
+
+                    <input asp-for="SampleCount" type="number" min="1" />
+
+                    <span asp-validation-for="SampleCount" class="validation-message">
+                    </span>
+                </div>
+
+                <div class="form-field">
+                    <label asp-for="PixelsPerSample">
+                        Pixels per substrate
+                    </label>
+
+                    <input asp-for="PixelsPerSample"
+                           type="number"
+                           min="1" />
+
+                    <span asp-validation-for="PixelsPerSample"
+                          class="validation-message">
+                    </span>
+                </div>
+            </div>
+
+            <p class="form-help">
+                substrate will be generated as S01, S02, S03... and pixels as P1, P2, P3...
+            </p>
+        </div>
+
+        <div class="form-section">
+            <h2>Device stack <span class="optional-label">Optional</span></h2>
+
+            <div class="form-field">
+                <label asp-for="StackLayers">Layers</label>
+                <textarea asp-for="StackLayers" rows="7"
+                        placeholder="Glass&#10;ITO&#10;SnO2&#10;Perovskite&#10;Spiro-OMeTAD&#10;Au"></textarea>
+                <p class="form-help">Enter one layer per line, from bottom/substrate to top.</p>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Notes</h2>
+            <div class="form-field">
+
+                <label asp-for="Batch.Notes">
+                    Batch notes
+                </label>
+
+                <textarea asp-for="Batch.Notes"
+                          rows="4"
+                          placeholder="Optional notes about this production batch...">
+                </textarea>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-page="/Index"
+               class="cancel-button">
+                Cancel
+            </a>
+
+            <button type="submit" class="save-button">
+                Create Batch
+            </button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,186 @@
+﻿@page
+@model Cicci.SampleManager.Pages.IndexModel
+
+@{
+    ViewData["Title"] = "Sample Manager";
+
+    var totalSamples =
+        Model.Batches.Sum(batch => batch.Samples.Count);
+
+    var totalDevices =
+        Model.Batches.Sum(
+            batch => batch.Samples.Sum(
+                sample => sample.Devices.Count
+            )
+        );
+}
+
+
+<div class="sample-page">
+
+    <div class="page-header">
+
+        <div>
+
+            <div class="eyebrow">
+                CICCI RESEARCH
+            </div>
+
+            <h1>Sample Manager</h1>
+
+            <p>
+                Manage production batches, samples and devices.
+            </p>
+
+        </div>
+
+
+        <a asp-page="/CreateBatch"
+           class="new-sample-button">
+            + New Batch
+        </a>
+
+    </div>
+
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <span>Batches</span>
+            <strong>@Model.Batches.Count</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>Samples</span>
+            <strong>@totalSamples</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>Devices</span>
+            <strong>@totalDevices</strong>
+        </div>
+
+    </div>
+
+
+    @if (Model.Batches.Count == 0)
+    {
+        <div class="empty-state">
+
+            <h2>No batches yet</h2>
+
+            <p>
+                Create your first production batch to start
+                registering samples and devices.
+            </p>
+
+            <a asp-page="/CreateBatch"
+               class="new-sample-button">
+                Create first batch
+            </a>
+
+        </div>
+    }
+    else
+    {
+        <div class="batch-list">
+
+            @foreach (var batch in Model.Batches)
+            {
+                <div class="batch-card">
+
+                    <div class="batch-header">
+                        <div>
+                            <div class="batch-code">@batch.Code</div>
+                            <div class="batch-meta">
+                                Produced @batch.ProductionDate.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+
+                        <div class="batch-actions">
+                            <div class="batch-counts">
+                                <span>@batch.Samples.Count samples</span>
+                                <span>@batch.Samples.Sum(sample => sample.Devices.Count) devices</span>
+                            </div>
+
+                            <a asp-page="/EditBatch"
+                            asp-route-id="@batch.Id"
+                            class="edit-button">
+                                Edit
+                            </a>
+                        </div>
+                    </div>
+
+                    @if (batch.DeviceStack?.Layers.Count > 0)
+                    {
+                        <div class="batch-stack">
+                            <span>Device stack</span>
+                            <strong>
+                                @string.Join(" / ", batch.DeviceStack.Layers
+                                    .OrderBy(layer => layer.Position)
+                                    .Select(layer => layer.Material))
+                            </strong>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(batch.Notes))
+                    {
+                        <div class="batch-notes">
+                            @batch.Notes
+                        </div>
+                    }
+
+                    <div class="sample-groups">
+
+                        @foreach (
+                            var sample
+                            in batch.Samples.OrderBy(
+                                sample => sample.Code
+                            )
+                        )
+                        {
+                            <div class="sample-group">
+
+                                <div class="sample-code">
+                                    @sample.Code
+                                </div>
+
+
+                                <div class="device-list">
+
+                                    @foreach (
+                                        var device
+                                        in sample.Devices.OrderBy(
+                                            device => device.Pixel
+                                        )
+                                    )
+                                    {
+                                        <div class="device-chip">
+
+                                            <span class="device-name">
+                                                @batch.Code /
+                                                @sample.Code /
+                                                @device.Pixel
+                                            </span>
+
+                                            <span class="device-id">
+                                                @device.Id
+                                            </span>
+
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>

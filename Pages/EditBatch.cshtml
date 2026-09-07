@@ -1,0 +1,51 @@
+@page "{id:guid}"
+@model Cicci.SampleManager.Pages.EditBatchModel
+
+@{
+    ViewData["Title"] = "Edit Batch";
+}
+
+<div class="sample-page">
+    <div class="form-header">
+        <div class="eyebrow">CICCI RESEARCH</div>
+        <h1>Edit Batch</h1>
+        <p>Update information shared by all samples and devices in this batch.</p>
+    </div>
+
+    <form method="post" class="sample-form">
+        <input asp-for="Id" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly" class="validation-message"></div>
+
+        <div class="form-section">
+            <h2>Batch information</h2>
+
+            <div class="form-grid">
+                <div class="form-field">
+                    <label asp-for="Code">Batch code</label>
+                    <input asp-for="Code" />
+                    <span asp-validation-for="Code" class="validation-message"></span>
+                </div>
+
+                <div class="form-field">
+                    <label asp-for="ProductionDate">Production date</label>
+                    <input asp-for="ProductionDate" type="date" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Notes</h2>
+
+            <div class="form-field">
+                <label asp-for="Notes">Batch notes</label>
+                <textarea asp-for="Notes" rows="4"></textarea>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-page="/Index" class="cancel-button">Cancel</a>
+            <button type="submit" class="save-button">Save Changes</button>
+        </div>
+    </form>
+</div>
