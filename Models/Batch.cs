@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Cicci.SampleManager.Models;
 
@@ -7,6 +8,8 @@ public class Batch
     public Guid Id { get; set; } = Guid.NewGuid();
 
     public Guid UserId { get; set; }
+
+    [ValidateNever]
     public ResearchUser User { get; set; } = null!;
 
     [Range(0, 1000)]
