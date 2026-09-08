@@ -26,8 +26,7 @@ app.MapRazorPages();
 using (var scope = app.Services.CreateScope())
 {
     var database = scope.ServiceProvider.GetRequiredService<SampleDbContext>();
-
-    database.Database.EnsureCreated();
+    await database.Database.MigrateAsync();
 }
 
 app.Run();
