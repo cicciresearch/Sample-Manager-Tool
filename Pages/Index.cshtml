@@ -30,31 +30,62 @@
 
     </div>
 
-    <div class="user-selector-bar">
-        <form method="get" class="user-selector">
-            <label for="userId">Active user</label>
+    <form method="get" class="filter-bar">
+        <div class="user-row">
+            <div class="filter-field user-field">
+                <label for="userId">Active user</label>
 
-            @if (Model.Users.Count > 0)
-            {
-                <select id="userId" name="userId" onchange="this.form.submit()">
-                    @foreach (var user in Model.Users)
-                    {
-                        <option value="@user.Id" selected="@(user.Id == Model.SelectedUserId)">
-                            @user.Name
-                        </option>
-                    }
-                </select>
-            }
-            else
-            {
-                <select disabled>
-                    <option>No users available</option>
-                </select>
-            }
-        </form>
+                @if (Model.Users.Count > 0)
+                {
+                    <select id="userId" name="userId" onchange="this.form.submit()">
+                        @foreach (var user in Model.Users)
+                        {
+                            <option value="@user.Id" selected="@(user.Id == Model.SelectedUserId)">@user.Name</option>
+                        }
+                    </select>
+                }
+                else
+                {
+                    <select disabled>
+                        <option>No users available</option>
+                    </select>
+                }
+            </div>
 
-        <a asp-page="/CreateUser" class="edit-button">+ New User</a>
-    </div>
+            <a asp-page="/CreateUser" class="edit-button new-user-button">+ New User</a>
+        </div>
+
+        <div class="filter-row">
+            <div class="filter-field filter-search">
+                <label for="search">Search</label>
+                <input id="search" name="search" type="search" value="@Model.Search"
+                    placeholder="Batch, substrate, pixel, stack, notes..." />
+            </div>
+
+            <div class="filter-field date-filter">
+                <label for="fromDate">From</label>
+                <input id="fromDate" name="fromDate" type="date"
+                    value="@Model.FromDate?.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div class="filter-field date-filter">
+                <label for="toDate">To</label>
+                <input id="toDate" name="toDate" type="date"
+                    value="@Model.ToDate?.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="filter-button">Apply</button>
+
+                @if (Model.HasActiveFilters)
+                {
+                    <a asp-page="/Index"
+                    asp-route-userId="@Model.SelectedUserId"
+                    class="clear-filter-button">Clear</a>
+                }
+            </div>
+        </div>
+    </form>
 
     <div class="stats-grid">
 
@@ -79,19 +110,21 @@
     @if (Model.Batches.Count == 0)
     {
         <div class="empty-state">
+            @if (Model.HasActiveFilters)
+            {
+                <h2>No matching batches</h2>
+                <p>Try changing the search text or date filters.</p>
 
-            <h2>No batches yet</h2>
-
-            <p>
-                Create your first production batch to start
-                registering samples and devices.
-            </p>
-
-            <a asp-page="/CreateBatch"
-               class="new-sample-button">
-                Create first batch
-            </a>
-
+                <a asp-page="/Index"
+                asp-route-userId="@Model.SelectedUserId"
+                class="edit-button">Clear filters</a>
+            }
+            else
+            {
+                <h2>No batches yet</h2>
+                <p>Create your first production batch to start registering samples and devices.</p>
+                <a asp-page="/CreateBatch" class="new-sample-button">Create first batch</a>
+            }
         </div>
     }
     else {
