@@ -5,6 +5,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
 
+// Controllers handle HTTP API routes such as /api/v1/devices.
+builder.Services.AddControllers();
+
 builder.Services.AddDbContext<SampleDbContext>(options =>
     options.UseSqlite("Data Source=DataStore/samples.db"));
 
@@ -21,6 +24,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
 app.MapRazorPages();
+app.MapControllers(); // Maps routes declared by API controllers.
 
 // Create the database automatically if it does not exist.
 using (var scope = app.Services.CreateScope())
