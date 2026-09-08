@@ -94,36 +94,33 @@
 
         </div>
     }
-    else
-    {
-        <div class="batch-list">
-
-            @foreach (var batch in Model.Batches)
-            {
-                <div class="batch-card">
-
-                    <div class="batch-header">
-                        <div>
-                            <div class="batch-code">@batch.Code</div>
-                            <div class="batch-meta">
-                                Produced @batch.ProductionDate.ToString("dd/MM/yyyy")
-                            </div>
-                        </div>
-
-                        <div class="batch-actions">
-                            <div class="batch-counts">
-                                <span>@batch.Samples.Count substrate(s)</span>
-                                <span>@batch.Samples.Sum(sample => sample.Devices.Count) devices</span>
-                            </div>
-
-                            <a asp-page="/EditBatch"
-                            asp-route-id="@batch.Id"
-                            class="edit-button">
-                                Edit
-                            </a>
+    else {
+    <div class="batch-list">
+        @foreach (var batch in Model.Batches)
+        {
+            <details class="batch-card">
+                <summary class="batch-header">
+                    <div class="batch-summary-main">
+                        <div class="batch-code">@batch.Code</div>
+                        <div class="batch-meta">
+                            Produced @batch.ProductionDate.ToString("dd/MM/yyyy")
+                            @if (batch.Area.HasValue)
+                            {
+                                <span> · @batch.Area.Value cm²</span>
+                            }
                         </div>
                     </div>
 
+                    <div class="batch-summary-right">
+                        <div class="batch-counts">
+                            <span>@batch.Samples.Count substrate(s)</span>
+                            <span>@batch.Samples.Sum(sample => sample.Devices.Count) devices</span>
+                        </div>
+                        <span class="batch-chevron">⌄</span>
+                    </div>
+                </summary>
+
+                <div class="batch-content">
                     @if (batch.DeviceStack?.Layers.Count > 0)
                     {
                         <div class="batch-stack">
@@ -138,62 +135,36 @@
 
                     @if (!string.IsNullOrWhiteSpace(batch.Notes))
                     {
-                        <div class="batch-notes">
-                            @batch.Notes
-                        </div>
+                        <div class="batch-notes">@batch.Notes</div>
                     }
 
                     <div class="sample-groups">
-
-                        @foreach (
-                            var sample
-                            in batch.Samples.OrderBy(
-                                sample => sample.Code
-                            )
-                        )
+                        @foreach (var sample in batch.Samples.OrderBy(sample => sample.Code))
                         {
                             <div class="sample-group">
-
-                                <div class="sample-code">
-                                    @sample.Code
-                                </div>
-
+                                <div class="sample-code">@sample.Code</div>
 
                                 <div class="device-list">
-
-                                    @foreach (
-                                        var device
-                                        in sample.Devices.OrderBy(
-                                            device => device.Pixel
-                                        )
-                                    )
+                                    @foreach (var device in sample.Devices.OrderBy(device => device.Pixel))
                                     {
                                         <div class="device-chip">
-
-                                            <span class="device-name">
-                                                @batch.Code -
-                                                @sample.Code -
-                                                @device.Pixel
-                                            </span>
-
-                                            @* <span class="device-id">
-                                                @device.Id
-                                            </span> *@
-
+                                            <span class="device-name">@batch.Code - @sample.Code - @device.Pixel</span>
                                         </div>
                                     }
-
                                 </div>
-
                             </div>
                         }
-
                     </div>
 
+                    <div class="batch-footer">
+                        <a asp-page="/EditBatch"
+                        asp-route-id="@batch.Id"
+                        class="edit-button">Edit Batch</a>
+                    </div>
                 </div>
-            }
-
-        </div>
+            </details>
+        }
+    </div>
     }
 
 </div>

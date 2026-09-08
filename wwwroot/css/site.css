@@ -397,22 +397,6 @@ body {
     gap: 20px;
 }
 
-.batch-card {
-    background: white;
-    border: 1px solid #e3e6e9;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.batch-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    padding: 22px 24px;
-    border-bottom: 1px solid #e8eaed;
-}
-
 .batch-code {
     font-size: 1.15rem;
     font-weight: 650;
@@ -442,6 +426,80 @@ body {
     color: #626b75;
     font-size: 0.88rem;
     border-bottom: 1px solid #edf0f2;
+}
+
+.batch-card {
+    background: white;
+    border: 1px solid #e3e6e9;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.batch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 24px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.batch-header::-webkit-details-marker {
+    display: none;
+}
+
+.batch-header:hover {
+    background: #fafbfc;
+}
+
+.batch-summary-main {
+    min-width: 0;
+}
+
+.batch-summary-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.batch-chevron {
+    display: inline-block;
+    color: #7a828c;
+    font-size: 1.25rem;
+    line-height: 1;
+    transition: transform 0.2s ease;
+}
+
+.batch-card[open] .batch-chevron {
+    transform: rotate(180deg);
+}
+
+.batch-card[open] .batch-header {
+    border-bottom: 1px solid #e8eaed;
+}
+
+.batch-content {
+    background: white;
+}
+
+.batch-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 24px 20px;
+}
+
+@media (max-width: 700px) {
+    .batch-header {
+        align-items: flex-start;
+    }
+
+    .batch-summary-right {
+        align-items: flex-end;
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
 }
 
 .sample-groups {
