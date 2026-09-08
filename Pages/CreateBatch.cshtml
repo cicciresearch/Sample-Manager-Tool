@@ -22,12 +22,20 @@
             <h2>Batch</h2>
             <div class="form-grid">
                 <div class="form-field">
-                    <label asp-for="Batch.User">
-                        User
-                    </label>
+                    <label asp-for="Batch.UserId">User</label>
 
-                    <input asp-for="Batch.User" placeholder="e.g. John Doe" />
-                    <span asp-validation-for="Batch.User" class="validation-message"></span>
+                    <div class="user-input-row">
+                        <select asp-for="Batch.UserId">
+                            <option value="">Select user...</option>
+                            @foreach (var user in Model.Users)
+                            {
+                                <option value="@user.Id">@user.Name</option>
+                            }
+                        </select>
+                        <a asp-page="/CreateUser" class="edit-button">+ New</a>
+                    </div>
+                    
+                    <span asp-validation-for="Batch.UserId" class="validation-message"></span>
 
                 </div>
 

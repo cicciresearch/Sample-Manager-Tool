@@ -15,25 +15,13 @@
         );
 }
 
-
 <div class="sample-page">
-
     <div class="page-header">
-
         <div>
-
-            <div class="eyebrow">
-                CICCI RESEARCH
-            </div>
-
+            <div class="eyebrow">CICCI RESEARCH</div>
             <h1>Sample Manager</h1>
-
-            <p>
-                Manage production batches, samples and devices.
-            </p>
-
+            <p>Manage production batches, samples and devices.</p>
         </div>
-
 
         <a asp-page="/CreateBatch"
            class="new-sample-button">
@@ -42,6 +30,31 @@
 
     </div>
 
+    <div class="user-selector-bar">
+        <form method="get" class="user-selector">
+            <label for="userId">Active user</label>
+
+            @if (Model.Users.Count > 0)
+            {
+                <select id="userId" name="userId" onchange="this.form.submit()">
+                    @foreach (var user in Model.Users)
+                    {
+                        <option value="@user.Id" selected="@(user.Id == Model.SelectedUserId)">
+                            @user.Name
+                        </option>
+                    }
+                </select>
+            }
+            else
+            {
+                <select disabled>
+                    <option>No users available</option>
+                </select>
+            }
+        </form>
+
+        <a asp-page="/CreateUser" class="edit-button">+ New User</a>
+    </div>
 
     <div class="stats-grid">
 

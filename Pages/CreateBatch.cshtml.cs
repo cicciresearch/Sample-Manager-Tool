@@ -16,6 +16,7 @@ public class CreateBatchModel : PageModel
         _database = database;
     }
 
+    public List<ResearchUser> Users { get; set; } = [];
 
     [BindProperty]
     public Batch Batch { get; set; } = new();
@@ -24,7 +25,6 @@ public class CreateBatchModel : PageModel
     [Range(1, 1000)]
     public int SampleCount { get; set; } = 4;
 
-
     [BindProperty]
     [Range(1, 1000)]
     public int PixelsPerSample { get; set; } = 6;
@@ -32,17 +32,25 @@ public class CreateBatchModel : PageModel
     [BindProperty]
     public string? StackLayers { get; set; }
 
-
-    public void OnGet()
+    private async Task LoadUsersAsync()
     {
-        Batch.ProductionDate = DateOnly.FromDateTime(DateTime.Today);
+        Users = await _database.ResearchUsers
+            .Where(user => user.IsEnabled)
+            .OrderBy(user => user.Name)
+            .ToListAsync();
     }
 
+    public async Task OnGetAsync()
+    {
+        Batch.ProductionDate = DateOnly.FromDateTime(DateTime.Today);
+        await LoadUsersAsync();
+    }
 
     public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid)
         {
+            await LoadUsersAsync();
             return Page();
         }
 
@@ -57,6 +65,7 @@ public class CreateBatchModel : PageModel
                 "A batch with this code already exists."
             );
 
+            await LoadUsersAsync();
             return Page();
         }
 
@@ -89,7 +98,7 @@ public class CreateBatchModel : PageModel
         }
 
         Batch.Area = Batch.Area == 0 ? null : Batch.Area;
-        
+
         int sampleDigits = Math.Max(2, SampleCount.ToString().Length);
 
         for (int sampleNumber = 1; sampleNumber <= SampleCount; sampleNumber++)

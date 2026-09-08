@@ -10,6 +10,7 @@ public class SampleDbContext : DbContext
     {
     }
 
+    public DbSet<ResearchUser> ResearchUsers => Set<ResearchUser>();
     public DbSet<Batch> Batches => Set<Batch>();
     public DbSet<Sample> Samples => Set<Sample>();
     public DbSet<Device> Devices => Set<Device>();
@@ -30,6 +31,17 @@ public class SampleDbContext : DbContext
             .HasMany(batch => batch.Samples)
             .WithOne(sample => sample.Batch)
             .HasForeignKey(sample => sample.BatchId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // A ResearchUser has many Batches.
+        modelBuilder.Entity<ResearchUser>()
+            .HasIndex(user => user.Name)
+            .IsUnique();
+
+        modelBuilder.Entity<ResearchUser>()
+            .HasMany(user => user.Batches)
+            .WithOne(batch => batch.User)
+            .HasForeignKey(batch => batch.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         // Sample codes must be unique inside each Batch.

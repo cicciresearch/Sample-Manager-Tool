@@ -6,9 +6,9 @@ public class Batch
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    [Required]
-    public string User { get; set; } = "";
-    
+    public Guid UserId { get; set; }
+    public ResearchUser User { get; set; } = null!;
+
     [Range(0, 1000)]
     public float? Area { get; set; }
 

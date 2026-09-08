@@ -547,3 +547,40 @@ body {
 .batch-stack strong {
     font-weight: 500;
 }
+
+.user-selector-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.user-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.user-selector label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #68717b;
+}
+
+.user-selector select {
+    min-width: 220px;
+    padding: 9px 12px;
+    border: 1px solid #d8dce0;
+    border-radius: 7px;
+    background: white;
+}
+
+.user-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-input-row select {
+    flex: 1;
+}

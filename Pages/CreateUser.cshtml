@@ -1,0 +1,33 @@
+@page
+@model Cicci.SampleManager.Pages.CreateUserModel
+
+@{
+    ViewData["Title"] = "New User";
+}
+
+<div class="sample-page">
+    <div class="form-header">
+        <div class="eyebrow">CICCI RESEARCH</div>
+        <h1>New User</h1>
+        <p>Add a user who can own production batches and devices.</p>
+    </div>
+
+    <form method="post" class="sample-form">
+        <div asp-validation-summary="ModelOnly" class="validation-message"></div>
+
+        <div class="form-section">
+            <h2>User information</h2>
+
+            <div class="form-field">
+                <label asp-for="ResearchUser.Name">Name</label>
+                <input asp-for="ResearchUser.Name" placeholder="e.g. John Doe" autofocus />
+                <span asp-validation-for="ResearchUser.Name" class="validation-message"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-page="/Index" class="cancel-button">Cancel</a>
+            <button type="submit" class="save-button">Create User</button>
+        </div>
+    </form>
+</div>
