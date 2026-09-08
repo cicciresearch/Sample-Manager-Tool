@@ -1,4 +1,6 @@
 using Cicci.SampleManager.Data;
+using Cicci.SampleManager.Api;
+using Cicci.SampleManager.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -265,5 +267,56 @@ public class SampleManagerApiController : ControllerBase
         };
 
         return Ok(result);
+    }
+
+    // Creates a new enabled ResearchUser from a JSON request sent by LabVIEW.
+    [HttpPost("users")]
+    public async Task<IActionResult> CreateUserAsync(
+        [FromBody] CreateUserRequest request)
+    {
+        var name = request.Name.Trim();
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return BadRequest(new
+            {
+                error = "User name is required."
+            });
+        }
+
+        var existingUser = await _database.ResearchUsers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(user =>
+                user.Name.ToLower() == name.ToLower());
+
+        if (existingUser != null)
+        {
+            // 409 Conflict means that the request is valid, but the resource
+            // already exists and therefore cannot be created again.
+            return Conflict(new
+            {
+                error = "A user with this name already exists.",
+                id = existingUser.Id,
+                name = existingUser.Name,
+                isEnabled = existingUser.IsEnabled
+            });
+        }
+
+        var user = new ResearchUser
+        {
+            Name = name,
+            IsEnabled = true
+        };
+
+        _database.ResearchUsers.Add(user);
+        await _database.SaveChangesAsync();
+
+        // HTTP 201 means that a new resource was successfully created.
+        return StatusCode(StatusCodes.Status201Created, new
+        {
+            id = user.Id,
+            name = user.Name,
+            isEnabled = user.IsEnabled
+        });
     }
 }
