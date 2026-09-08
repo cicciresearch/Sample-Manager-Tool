@@ -20,12 +20,10 @@ public class SampleDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-
         // Batch code must be unique.
         modelBuilder.Entity<Batch>()
             .HasIndex(batch => batch.Code)
             .IsUnique();
-
 
         // A Batch contains many Samples.
         modelBuilder.Entity<Batch>()
@@ -33,7 +31,6 @@ public class SampleDbContext : DbContext
             .WithOne(sample => sample.Batch)
             .HasForeignKey(sample => sample.BatchId)
             .OnDelete(DeleteBehavior.Restrict);
-
 
         // Sample codes must be unique inside each Batch.
         modelBuilder.Entity<Sample>()
@@ -44,14 +41,12 @@ public class SampleDbContext : DbContext
             })
             .IsUnique();
 
-
         // A Sample contains many Devices.
         modelBuilder.Entity<Sample>()
             .HasMany(sample => sample.Devices)
             .WithOne(device => device.Sample)
             .HasForeignKey(device => device.SampleId)
             .OnDelete(DeleteBehavior.Restrict);
-
 
         // Pixel IDs must be unique inside each Sample.
         modelBuilder.Entity<Device>()

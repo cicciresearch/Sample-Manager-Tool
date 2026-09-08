@@ -7,6 +7,12 @@ public class Batch
     public Guid Id { get; set; } = Guid.NewGuid();
 
     [Required]
+    public string User { get; set; } = "";
+    
+    [Range(0, 1000)]
+    public float? Area { get; set; }
+
+    [Required]
     [MaxLength(100)]
     public string Code { get; set; } = "";
 

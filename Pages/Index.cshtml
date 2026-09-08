@@ -99,7 +99,7 @@
 
                         <div class="batch-actions">
                             <div class="batch-counts">
-                                <span>@batch.Samples.Count samples</span>
+                                <span>@batch.Samples.Count substrate(s)</span>
                                 <span>@batch.Samples.Sum(sample => sample.Devices.Count) devices</span>
                             </div>
 
@@ -158,14 +158,14 @@
                                         <div class="device-chip">
 
                                             <span class="device-name">
-                                                @batch.Code /
-                                                @sample.Code /
+                                                @batch.Code -
+                                                @sample.Code -
                                                 @device.Pixel
                                             </span>
 
-                                            <span class="device-id">
+                                            @* <span class="device-id">
                                                 @device.Id
-                                            </span>
+                                            </span> *@
 
                                         </div>
                                     }

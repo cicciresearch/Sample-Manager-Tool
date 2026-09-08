@@ -20,7 +20,6 @@ public class CreateBatchModel : PageModel
     [BindProperty]
     public Batch Batch { get; set; } = new();
 
-
     [BindProperty]
     [Range(1, 1000)]
     public int SampleCount { get; set; } = 4;
@@ -36,8 +35,7 @@ public class CreateBatchModel : PageModel
 
     public void OnGet()
     {
-        Batch.ProductionDate =
-            DateOnly.FromDateTime(DateTime.Today);
+        Batch.ProductionDate = DateOnly.FromDateTime(DateTime.Today);
     }
 
 
@@ -90,20 +88,17 @@ public class CreateBatchModel : PageModel
             Batch.DeviceStack = stack;
         }
 
-        int sampleDigits =
-            Math.Max(2, SampleCount.ToString().Length);
+        Batch.Area = Batch.Area == 0 ? null : Batch.Area;
+        
+        int sampleDigits = Math.Max(2, SampleCount.ToString().Length);
 
-
-        for (int sampleNumber = 1;
-             sampleNumber <= SampleCount;
-             sampleNumber++)
+        for (int sampleNumber = 1; sampleNumber <= SampleCount; sampleNumber++)
         {
             var sample = new Sample
             {
                 Code = $"S{sampleNumber.ToString($"D{sampleDigits}")}",
                 BatchId = Batch.Id
             };
-
 
             for (int pixelNumber = 1;
                  pixelNumber <= PixelsPerSample;
@@ -121,7 +116,6 @@ public class CreateBatchModel : PageModel
 
             Batch.Samples.Add(sample);
         }
-
 
         _database.Batches.Add(Batch);
 
