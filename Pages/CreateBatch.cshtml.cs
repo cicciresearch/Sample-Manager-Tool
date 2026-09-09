@@ -16,7 +16,7 @@ public class CreateBatchModel : PageModel
         _database = database;
     }
 
-    public List<ResearchUser> Users { get; set; } = [];
+    public ResearchUser ActiveUser { get; set; } = null!;
 
     [BindProperty]
     public Batch Batch { get; set; } = new();
@@ -32,28 +32,46 @@ public class CreateBatchModel : PageModel
     [BindProperty]
     public string? StackLayers { get; set; }
 
-    private async Task LoadUsersAsync()
+    // Loads the active user so the Create Batch page can display their name.
+    private async Task<bool> LoadActiveUserAsync(Guid userId)
     {
-        Users = await _database.ResearchUsers
-            .Where(user => user.IsEnabled)
-            .OrderBy(user => user.Name)
-            .ToListAsync();
+        var user = await _database.ResearchUsers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(user =>
+                user.Id == userId &&
+                user.IsEnabled);
+
+        if (user == null)
+            return false;
+
+        ActiveUser = user;
+        return true;
     }
 
-    public async Task OnGetAsync()
+    // Initializes a new batch for the user currently selected on the Index page.
+    public async Task<IActionResult> OnGetAsync(Guid? userId)
     {
+        if (!userId.HasValue)
+            return RedirectToPage("/Index");
+
+        if (!await LoadActiveUserAsync(userId.Value))
+            return NotFound();
+
+        Batch.UserId = userId.Value;
         Batch.ProductionDate = DateOnly.FromDateTime(DateTime.Today);
-        await LoadUsersAsync();
+
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid)
         {
-            await LoadUsersAsync();
+            if (!await LoadActiveUserAsync(Batch.UserId))
+                return NotFound();
+
             return Page();
         }
-
 
         var batchExists = await _database.Batches
             .AnyAsync(batch => batch.Code == Batch.Code);
@@ -64,8 +82,7 @@ public class CreateBatchModel : PageModel
                 "Batch.Code",
                 "A batch with this code already exists."
             );
-
-            await LoadUsersAsync();
+            await LoadActiveUserAsync(Batch.UserId);
             return Page();
         }
 
@@ -130,6 +147,9 @@ public class CreateBatchModel : PageModel
 
         await _database.SaveChangesAsync();
 
-        return RedirectToPage("/Index");
+        return RedirectToPage(
+            "/Index",
+            new { userId = Batch.UserId }
+        );
     }
 }

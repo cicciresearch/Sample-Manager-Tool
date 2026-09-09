@@ -23,7 +23,8 @@
             <p>Manage production batches, samples and devices.</p>
         </div>
 
-        <a asp-page="/CreateBatch"
+        <a asp-page="/CreateBatch" 
+        asp-route-userId="@Model.SelectedUserId"
            class="new-sample-button">
             + New Batch
         </a>
@@ -123,7 +124,10 @@
             {
                 <h2>No batches yet</h2>
                 <p>Create your first production batch to start registering samples and devices.</p>
-                <a asp-page="/CreateBatch" class="new-sample-button">Create first batch</a>
+                <a asp-page="/CreateBatch" 
+                asp-route-userId="@Model.SelectedUserId"
+                class="new-sample-button">Create first batch
+                </a>
             }
         </div>
     }

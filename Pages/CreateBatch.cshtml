@@ -9,11 +9,13 @@
     <div class="form-header">
         <div class="eyebrow">CICCI RESEARCH</div>
 
-        <h1>New Batch</h1>
+        <h1>@Model.ActiveUser.Name - New Batch</h1>
         <p>Create a production batch and automatically generate its samples and devices.</p>
     </div>
 
     <form method="post" class="sample-form">
+        <input type="hidden" asp-for="Batch.UserId" />
+
         <div asp-validation-summary="ModelOnly"
              class="validation-message">
         </div>
@@ -21,29 +23,6 @@
         <div class="form-section">
             <h2>Batch</h2>
             <div class="form-grid">
-                <div class="form-field">
-                    <label asp-for="Batch.UserId">User</label>
-
-                    <div class="user-input-row">
-                        <select asp-for="Batch.UserId">
-                            <option value="">Select user...</option>
-                            @foreach (var user in Model.Users)
-                            {
-                                <option value="@user.Id">@user.Name</option>
-                            }
-                        </select>
-                        <a asp-page="/CreateUser" class="edit-button">+ New</a>
-                    </div>
-                    
-                    <span asp-validation-for="Batch.UserId" class="validation-message"></span>
-
-                </div>
-
-                <div class="form-field">
-                    <label asp-for="Batch.Area">Area (cm²)</label>
-                    <input asp-for="Batch.Area" type="number" step="any" placeholder="e.g. 0.1" min="0"/>
-                    <span asp-validation-for="Batch.Area" class="validation-message"></span>
-                </div>
 
                 <div class="form-field">
                     <label asp-for="Batch.Code">Batch code</label>
@@ -56,6 +35,13 @@
                     <label asp-for="Batch.ProductionDate">Production date</label>
                     <input asp-for="Batch.ProductionDate" type="date" />
                 </div>
+
+                <div class="form-field">
+                    <label asp-for="Batch.Area">Active Area (cm²)</label>
+                    <input asp-for="Batch.Area" type="number" step="any" placeholder="e.g. 0.1" min="0"/>
+                    <span asp-validation-for="Batch.Area" class="validation-message"></span>
+                </div>
+
             </div>
         </div>
 
@@ -104,7 +90,11 @@
         </div>
 
         <div class="form-actions">
-            <a asp-page="/Index" class="cancel-button">Cancel</a>
+            <a asp-page="/Index"
+                asp-route-userId="@Model.Batch.UserId"
+                class="cancel-button">
+                Cancel
+            </a>
             <button type="submit" class="save-button">Create Batch</button>
         </div>
     </form>
