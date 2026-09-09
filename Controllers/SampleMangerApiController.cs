@@ -269,10 +269,9 @@ public class SampleManagerApiController : ControllerBase
         return Ok(result);
     }
 
-    // Creates a new enabled ResearchUser from a JSON request sent by LabVIEW.
+    // Creates a new enabled ResearchUser from a JSON request sent by client.
     [HttpPost("users")]
-    public async Task<IActionResult> CreateUserAsync(
-        [FromBody] CreateUserRequest request)
+    public async Task<IActionResult> CreateUserAsync([FromBody] CreateUserRequest request)
     {
         var name = request.Name.Trim();
 

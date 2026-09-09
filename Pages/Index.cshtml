@@ -106,7 +106,7 @@
 
     </div>
 
-
+        <div></div>
     @if (Model.Batches.Count == 0)
     {
         <div class="empty-state">
@@ -181,7 +181,7 @@
                                     @foreach (var device in sample.Devices.OrderBy(device => device.Pixel))
                                     {
                                         <div class="device-chip">
-                                            <span class="device-name">@batch.Code - @sample.Code - @device.Pixel</span>
+                                            <span class="device-name">@batch.Code · @sample.Code · @device.Pixel</span>
                                         </div>
                                     }
                                 </div>
@@ -190,6 +190,10 @@
                     </div>
 
                     <div class="batch-footer">
+                        <a asp-page="/BatchDetails"
+                        asp-route-id="@batch.Id"
+                        class="details-button">Open</a>
+
                         <a asp-page="/EditBatch"
                         asp-route-id="@batch.Id"
                         class="edit-button">Edit Batch</a>
