@@ -1,6 +1,7 @@
 using Cicci.SampleManager.Data;
 using Cicci.SampleManager.Api;
 using Cicci.SampleManager.Models;
+using Cicci.SampleManager.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,11 +12,27 @@ namespace Cicci.SampleManager.Controllers;
 public class SampleManagerApiController : ControllerBase
 {
     private readonly SampleDbContext _database;
+    private readonly MeasurementService _measurementService;
 
-    // Gives the API controller access to the same database used by the Razor Pages.
-    public SampleManagerApiController(SampleDbContext database)
+    // Gives the controller access to the database and shared measurement logic.
+    public SampleManagerApiController(
+        SampleDbContext database,
+        MeasurementService measurementService)
     {
         _database = database;
+        _measurementService = measurementService;
+    }
+
+    // Creates the standard HTTP response returned after any measurement is stored.
+    private IActionResult MeasurementCreated(Measurement measurement)
+    {
+        return StatusCode(StatusCodes.Status201Created, new
+        {
+            id = measurement.Id,
+            deviceId = measurement.DeviceId,
+            type = measurement.Type.ToString(),
+            measuredAt = measurement.MeasuredAt
+        });
     }
 
     // Checks that both the web API and the SQLite database are reachable.
@@ -317,5 +334,41 @@ public class SampleManagerApiController : ControllerBase
             name = user.Name,
             isEnabled = user.IsEnabled
         });
+    }
+
+    // Stores one JV measurement and its JV-specific summary results.
+    [HttpPost("devices/{deviceId:guid}/measurements/jv")]
+    public async Task<IActionResult> CreateJvMeasurementAsync(
+        Guid deviceId,
+        [FromBody] CreateJvMeasurementRequest request)
+    {
+        if (!await _measurementService.DeviceExistsAsync(deviceId))
+        {
+            return NotFound(new
+            {
+                error = "Device not found."
+            });
+        }
+
+        var measurement = _measurementService.CreateBaseMeasurement(
+            deviceId,
+            MeasurementType.JV,
+            request
+        );
+
+        measurement.Jv = new JvMeasurement
+        {
+            VocV = request.VocV,
+            JscMilliampPerCm2 = request.JscMilliampPerCm2,
+            FillFactorPercent = request.FillFactorPercent,
+            EfficiencyPercent = request.EfficiencyPercent,
+            VmppV = request.VmppV,
+            JmppMilliampPerCm2 = request.JmppMilliampPerCm2,
+            PmppMilliwattPerCm2 = request.PmppMilliwattPerCm2
+        };
+
+        await _measurementService.SaveAsync(measurement);
+
+        return MeasurementCreated(measurement);
     }
 }

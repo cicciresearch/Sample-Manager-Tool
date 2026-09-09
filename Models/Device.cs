@@ -16,4 +16,6 @@ public class Device
 
     [MaxLength(2000)]
     public string Notes { get; set; } = "";
+
+    public ICollection<Measurement> Measurements { get; set; } = new List<Measurement>();
 }

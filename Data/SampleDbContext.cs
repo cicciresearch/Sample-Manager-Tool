@@ -11,11 +11,18 @@ public class SampleDbContext : DbContext
     }
 
     public DbSet<ResearchUser> ResearchUsers => Set<ResearchUser>();
+
+    // Batches, Samples, Devices, and DeviceStacks are stored in separate tables.
     public DbSet<Batch> Batches => Set<Batch>();
     public DbSet<Sample> Samples => Set<Sample>();
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<DeviceStack> DeviceStacks => Set<DeviceStack>();
     public DbSet<StackLayer> StackLayers => Set<StackLayer>();
+
+    // Measurements are stored in a single table, with a discriminator column to distinguish between different measurement types.
+    public DbSet<Measurement> Measurements => Set<Measurement>();
+    public DbSet<JvMeasurement> JvMeasurements => Set<JvMeasurement>();
+    public DbSet<EqeMeasurement> EqeMeasurements => Set<EqeMeasurement>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -88,5 +95,51 @@ public class SampleDbContext : DbContext
                 layer.Position
             })
             .IsUnique();
+
+        // A Device can have any number of measurements over its lifetime.
+        modelBuilder.Entity<Device>()
+            .HasMany(device => device.Measurements)
+            .WithOne(measurement => measurement.Device)
+            .HasForeignKey(measurement => measurement.DeviceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // This index makes queries such as "all JV measurements for P3,
+        // newest first" efficient as the measurement database grows.
+        modelBuilder.Entity<Measurement>()
+            .HasIndex(measurement => new
+            {
+                measurement.DeviceId,
+                measurement.Type,
+                measurement.MeasuredAt
+            });
+
+        // Store the enum as readable strings such as "JV" and "EQE"
+        // instead of database integers such as 0 and 1.
+        modelBuilder.Entity<Measurement>()
+            .Property(measurement => measurement.Type)
+            .HasConversion<string>();
+
+        // The type-specific measurement tables use MeasurementId as their primary key.
+        modelBuilder.Entity<JvMeasurement>()
+            .HasKey(jv => jv.MeasurementId);
+
+        modelBuilder.Entity<EqeMeasurement>()
+            .HasKey(eqe => eqe.MeasurementId);
+
+        // JvMeasurement uses MeasurementId as both its primary key and
+        // foreign key. This creates a one-to-one relationship.
+        modelBuilder.Entity<Measurement>()
+            .HasOne(measurement => measurement.Jv)
+            .WithOne(jv => jv.Measurement)
+            .HasForeignKey<JvMeasurement>(jv => jv.MeasurementId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // EQE uses the same one-to-one pattern.
+        modelBuilder.Entity<Measurement>()
+            .HasOne(measurement => measurement.Eqe)
+            .WithOne(eqe => eqe.Measurement)
+            .HasForeignKey<EqeMeasurement>(eqe => eqe.MeasurementId)
+            .OnDelete(DeleteBehavior.Cascade);
+            
     }
 }

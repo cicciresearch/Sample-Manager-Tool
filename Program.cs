@@ -1,5 +1,6 @@
 using Cicci.SampleManager.Data;
 using Microsoft.EntityFrameworkCore;
+using Cicci.SampleManager.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +8,7 @@ builder.Services.AddRazorPages();
 
 // Controllers handle HTTP API routes such as /api/v1/devices.
 builder.Services.AddControllers();
-
+builder.Services.AddScoped<MeasurementService>();
 builder.Services.AddDbContext<SampleDbContext>(options =>
     options.UseSqlite("Data Source=DataStore/samples.db"));
 
