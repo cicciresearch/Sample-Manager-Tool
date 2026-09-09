@@ -15,7 +15,7 @@
          class="details-back">← Back to @Model.Device.Sample.Batch.Code</a>
 
       <div class="eyebrow">
-        @Model.Device.Sample.Batch.Code · @Model.Device.Sample.Code
+        @Model.Device.Sample.Batch.Code · @Model.Device.Sample.Code · @Model.Device.Id
       </div>
 
       <h1>Pixel @Model.Device.Pixel</h1>
@@ -217,7 +217,7 @@
             <div class="measurement-result">
               <strong>
                 @Model.FormatValue(
-                  selected.Eqe.IntegratedJscMilliampPerCm2,
+                  selected.Eqe.Jsc,
                   "mA/cm²")
               </strong>
               <span>Integrated Jsc</span>
@@ -226,7 +226,7 @@
             <div class="measurement-result">
               <strong>
                 @Model.FormatValue(
-                  selected.Eqe.PeakEqePercent,
+                  selected.Eqe.PeakEQE,
                   "%")
               </strong>
               <span>Peak EQE</span>

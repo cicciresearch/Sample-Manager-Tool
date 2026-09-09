@@ -371,4 +371,35 @@ public class SampleManagerApiController : ControllerBase
 
         return MeasurementCreated(measurement);
     }
+
+    // Stores one EQE measurement with common and EQE-specific data.
+    [HttpPost("devices/{deviceId:guid}/measurements/eqe")]
+    public async Task<IActionResult> CreateEqeMeasurementAsync(
+        Guid deviceId,
+        [FromBody] CreateMeasurementRequest<EqeMeasurementRequest> request)
+    {
+        if (!await _measurementService.DeviceExistsAsync(deviceId))
+        {
+            return NotFound(new
+            {
+                error = "Device not found."
+            });
+        }
+
+        var measurement = _measurementService.CreateBaseMeasurement(
+            deviceId,
+            MeasurementType.EQE,
+            request.Common
+        );
+
+        measurement.Eqe = new EqeMeasurement
+        {
+            Jsc = request.Specific.Jsc,
+            PeakEQE = request.Specific.PeakEQE
+        };
+
+        await _measurementService.SaveAsync(measurement);
+
+        return MeasurementCreated(measurement);
+    }
 }

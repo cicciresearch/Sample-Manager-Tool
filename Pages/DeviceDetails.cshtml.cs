@@ -78,11 +78,11 @@ public class DeviceDetailsModel : PageModel
                 => $"Voc {voc:0.###} V",
 
             MeasurementType.EQE
-                when measurement.Eqe?.IntegratedJscMilliampPerCm2 is double jsc
+                when measurement.Eqe?.Jsc is double jsc
                 => $"Jsc {jsc:0.##} mA/cm²",
 
             MeasurementType.EQE
-                when measurement.Eqe?.PeakEqePercent is double peakEqe
+                when measurement.Eqe?.PeakEQE is double peakEqe
                 => $"Peak EQE {peakEqe:0.##} %",
 
             _ => "No summary"
