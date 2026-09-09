@@ -1,0 +1,252 @@
+@page "{id:guid}"
+@model Cicci.SampleManager.Pages.DeviceDetailsModel
+@using Cicci.SampleManager.Models
+
+@{
+  ViewData["Title"] = $"{Model.Device.Sample.Batch.Code} - {Model.Device.Sample.Code} - {Model.Device.Pixel}";
+  var selected = Model.SelectedMeasurement;
+}
+
+<div class="sample-page">
+  <div class="details-header"> 
+    <div>
+      <a asp-page="/BatchDetails"
+         asp-route-id="@Model.Device.Sample.Batch.Id"
+         class="details-back">← Back to @Model.Device.Sample.Batch.Code</a>
+
+      <div class="eyebrow">
+        @Model.Device.Sample.Batch.Code · @Model.Device.Sample.Code
+      </div>
+
+      <h1>Pixel @Model.Device.Pixel</h1>
+      <p>@Model.Measurements.Count measurement(s)</p>
+    </div>
+  </div>
+
+  @if (!string.IsNullOrWhiteSpace(Model.Device.Notes))
+  {
+    <div class="device-details-note">@Model.Device.Notes</div>
+  }
+
+  <div class="details-section">
+    <div class="details-section-header">
+      <div>
+        <h2>Measurement history</h2>
+        <p>Select a measurement to view its complete results.</p>
+      </div>
+    </div>
+
+    @if (Model.Measurements.Count == 0)
+    {
+      <div class="measurement-empty">
+        No measurements have been recorded for this pixel yet.
+      </div>
+    }
+    else
+    {
+      <div class="measurement-history">
+        @foreach (var measurement in Model.Measurements)
+        {
+          var isSelected = selected?.Id == measurement.Id;
+
+          <a asp-page="/DeviceDetails"
+             asp-route-id="@Model.Device.Id"
+             asp-route-measurementId="@measurement.Id"
+             class="measurement-history-row @(isSelected ? "selected" : "")">
+
+            <div class="measurement-history-time">
+              <strong>@measurement.MeasuredAt.ToLocalTime().ToString("dd/MM/yyyy")</strong>
+              <span>@measurement.MeasuredAt.ToLocalTime().ToString("HH:mm")</span>
+            </div>
+
+            <span class="measurement-type">
+              @measurement.Type
+            </span>
+
+            <strong class="measurement-highlight">
+              @Model.GetMeasurementHighlight(measurement)
+            </strong>
+
+            <span class="measurement-open">›</span>
+          </a>
+        }
+      </div>
+    }
+  </div>
+
+  @if (selected != null)
+  {
+    <div class="measurement-detail-grid">
+      <div class="measurement-detail-card">
+        <div class="measurement-card-header">
+          <div>
+            <div class="eyebrow">COMMON</div>
+            <h2>Measurement</h2>
+          </div>
+
+          <span class="measurement-type">
+            @selected.Type
+          </span>
+        </div>
+
+        <div class="measurement-common-list">
+          <div class="measurement-common-row">
+            <span>Measured</span>
+            <strong>
+              @selected.MeasuredAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+            </strong>
+          </div>
+
+          <div class="measurement-common-row">
+            <span>Data path</span>
+
+            @if (!string.IsNullOrWhiteSpace(selected.DataPath))
+            {
+              <code class="measurement-path">@selected.DataPath</code>
+            }
+            else
+            {
+              <strong>—</strong>
+            }
+          </div>
+
+          <div class="measurement-common-row">
+            <span>Notes</span>
+
+            @if (!string.IsNullOrWhiteSpace(selected.Notes))
+            {
+              <div class="measurement-notes">@selected.Notes</div>
+            }
+            else
+            {
+              <strong>—</strong>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="measurement-detail-card">
+        @if (selected.Type == MeasurementType.JV && selected.Jv != null)
+        {
+          <div class="measurement-card-header">
+            <div>
+              <div class="eyebrow">SPECIFIC</div>
+              <h2>JV results</h2>
+            </div>
+          </div>
+
+          <div class="measurement-primary-results">
+            <div class="measurement-result">
+              <strong>
+                @Model.FormatValue(
+                  selected.Jv.EfficiencyPercent,
+                  "%")
+              </strong>
+              <span>Efficiency</span>
+            </div>
+
+            <div class="measurement-result">
+              <strong>
+                @Model.FormatValue(
+                  selected.Jv.VocV,
+                  "V",
+                  "0.###")
+              </strong>
+              <span>Voc</span>
+            </div>
+
+            <div class="measurement-result">
+              <strong>
+                @Model.FormatValue(
+                  selected.Jv.JscMilliampPerCm2,
+                  "mA/cm²")
+              </strong>
+              <span>Jsc</span>
+            </div>
+
+            <div class="measurement-result">
+              <strong>
+                @Model.FormatValue(
+                  selected.Jv.FillFactorPercent,
+                  "%")
+              </strong>
+              <span>Fill factor</span>
+            </div>
+          </div>
+
+          <div class="measurement-secondary-results">
+            <div class="measurement-result secondary">
+              <strong>
+                @Model.FormatValue(
+                  selected.Jv.VmppV,
+                  "V",
+                  "0.###")
+              </strong>
+              <span>Vmpp</span>
+            </div>
+
+            <div class="measurement-result secondary">
+              <strong>
+                @Model.FormatValue(
+                  selected.Jv.JmppMilliampPerCm2,
+                  "mA/cm²")
+              </strong>
+              <span>Jmpp</span>
+            </div>
+
+            <div class="measurement-result secondary">
+              <strong>
+                @Model.FormatValue(
+                  selected.Jv.PmppMilliwattPerCm2,
+                  "mW/cm²")
+              </strong>
+              <span>Pmpp</span>
+            </div>
+          </div>
+        }
+        else if (selected.Type == MeasurementType.EQE && selected.Eqe != null)
+        {
+          <div class="measurement-card-header">
+            <div>
+              <div class="eyebrow">SPECIFIC</div>
+              <h2>EQE results</h2>
+            </div>
+          </div>
+
+          <div class="measurement-primary-results">
+            <div class="measurement-result">
+              <strong>
+                @Model.FormatValue(
+                  selected.Eqe.IntegratedJscMilliampPerCm2,
+                  "mA/cm²")
+              </strong>
+              <span>Integrated Jsc</span>
+            </div>
+
+            <div class="measurement-result">
+              <strong>
+                @Model.FormatValue(
+                  selected.Eqe.PeakEqePercent,
+                  "%")
+              </strong>
+              <span>Peak EQE</span>
+            </div>
+          </div>
+        }
+        else
+        {
+          <div class="measurement-card-header">
+            <div>
+              <div class="eyebrow">SPECIFIC</div>
+              <h2>@selected.Type results</h2>
+            </div>
+          </div>
+
+          <div class="measurement-empty">
+            No specific results are available for this measurement.
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

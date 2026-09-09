@@ -171,7 +171,11 @@
                             {
                                 <div class="pixel-card">
                                     <div class="pixel-card-header">
-                                        <strong>@device.Pixel</strong>
+                                        <a asp-page="/DeviceDetails"
+                                            asp-route-id="@device.Id"
+                                            class="pixel-details-link">
+                                            @device.Pixel
+                                        </a>
 
                                         <details class="rename-control pixel-rename">
                                             <summary>Rename</summary>

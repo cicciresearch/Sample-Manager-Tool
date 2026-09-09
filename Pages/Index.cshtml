@@ -180,9 +180,13 @@
                                 <div class="device-list">
                                     @foreach (var device in sample.Devices.OrderBy(device => device.Pixel))
                                     {
-                                        <div class="device-chip">
-                                            <span class="device-name">@batch.Code · @sample.Code · @device.Pixel</span>
-                                        </div>
+                                    <a asp-page="/DeviceDetails"
+                                        asp-route-id="@device.Id"
+                                        class="device-chip device-chip-link">
+                                        <span class="device-name">
+                                        @batch.Code · @sample.Code · @device.Pixel
+                                        </span>
+                                    </a>
                                     }
                                 </div>
                             </div>
