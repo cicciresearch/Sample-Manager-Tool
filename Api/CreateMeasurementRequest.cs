@@ -2,13 +2,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Cicci.SampleManager.Api;
 
-public abstract class CreateMeasurementRequest
+public class CreateMeasurementRequest<TSpecific>
+    where TSpecific : class
 {
-    public DateTimeOffset? MeasuredAt { get; set; }
+    [Required]
+    public CommonMeasurementRequest Common { get; set; } = null!;
 
-    [MaxLength(2000)]
-    public string? DataPath { get; set; }
-
-    [MaxLength(2000)]
-    public string? Notes { get; set; }
+    [Required]
+    public TSpecific Specific { get; set; } = null!;
 }

@@ -1,6 +1,6 @@
 namespace Cicci.SampleManager.Api;
 
-public class CreateJvMeasurementRequest : CreateMeasurementRequest
+public class JvMeasurementRequest
 {
     public double? VocV { get; set; }
     public double? JscMilliampPerCm2 { get; set; }

@@ -336,11 +336,11 @@ public class SampleManagerApiController : ControllerBase
         });
     }
 
-    // Stores one JV measurement and its JV-specific summary results.
+    // Stores one JV measurement with common and JV-specific data.
     [HttpPost("devices/{deviceId:guid}/measurements/jv")]
     public async Task<IActionResult> CreateJvMeasurementAsync(
         Guid deviceId,
-        [FromBody] CreateJvMeasurementRequest request)
+        [FromBody] CreateMeasurementRequest<JvMeasurementRequest> request)
     {
         if (!await _measurementService.DeviceExistsAsync(deviceId))
         {
@@ -353,18 +353,18 @@ public class SampleManagerApiController : ControllerBase
         var measurement = _measurementService.CreateBaseMeasurement(
             deviceId,
             MeasurementType.JV,
-            request
+            request.Common
         );
 
         measurement.Jv = new JvMeasurement
         {
-            VocV = request.VocV,
-            JscMilliampPerCm2 = request.JscMilliampPerCm2,
-            FillFactorPercent = request.FillFactorPercent,
-            EfficiencyPercent = request.EfficiencyPercent,
-            VmppV = request.VmppV,
-            JmppMilliampPerCm2 = request.JmppMilliampPerCm2,
-            PmppMilliwattPerCm2 = request.PmppMilliwattPerCm2
+            VocV = request.Specific.VocV,
+            JscMilliampPerCm2 = request.Specific.JscMilliampPerCm2,
+            FillFactorPercent = request.Specific.FillFactorPercent,
+            EfficiencyPercent = request.Specific.EfficiencyPercent,
+            VmppV = request.Specific.VmppV,
+            JmppMilliampPerCm2 = request.Specific.JmppMilliampPerCm2,
+            PmppMilliwattPerCm2 = request.Specific.PmppMilliwattPerCm2
         };
 
         await _measurementService.SaveAsync(measurement);

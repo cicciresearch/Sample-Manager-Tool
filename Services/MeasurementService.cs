@@ -27,18 +27,18 @@ public class MeasurementService
     public Measurement CreateBaseMeasurement(
         Guid deviceId,
         MeasurementType type,
-        CreateMeasurementRequest request)
+        CommonMeasurementRequest common)
     {
         return new Measurement
         {
             DeviceId = deviceId,
             Type = type,
 
-            MeasuredAt = request.MeasuredAt?.UtcDateTime
+            MeasuredAt = common.MeasuredAt?.UtcDateTime
                 ?? DateTime.UtcNow,
 
-            DataPath = NormalizeOptionalText(request.DataPath),
-            Notes = NormalizeOptionalText(request.Notes)
+            DataPath = NormalizeOptionalText(common.DataPath),
+            Notes = NormalizeOptionalText(common.Notes)
         };
     }
 
