@@ -3,6 +3,7 @@ using Cicci.SampleManager.Models;
 using Cicci.SampleManager.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cicci.SampleManager.Pages;
@@ -63,6 +64,37 @@ public class DeviceDetailsModel : PageModel
         }
 
         return Page();
+    }
+
+    // Opens the data file belonging to one measurement.
+    public async Task<IActionResult> OnGetDataFileAsync(
+        Guid id,
+        Guid measurementId)
+    {
+        var measurement = await _database.Measurements
+            .AsNoTracking()
+            .FirstOrDefaultAsync(measurement =>
+                measurement.Id == measurementId &&
+                measurement.DeviceId == id);
+
+        if (measurement == null ||
+            string.IsNullOrWhiteSpace(measurement.DataPath))
+            return NotFound();
+
+        var dataPath = measurement.DataPath.Trim();
+
+        if (!System.IO.File.Exists(dataPath))
+            return NotFound($"Data file not found: {dataPath}");
+
+        var contentTypeProvider = new FileExtensionContentTypeProvider();
+
+        if (!contentTypeProvider.TryGetContentType(dataPath, out var contentType))
+            contentType = "application/octet-stream";
+
+        return PhysicalFile(
+            dataPath,
+            contentType,
+            enableRangeProcessing: true);
     }
 
     // Returns the small result highlighted in the measurement history.
