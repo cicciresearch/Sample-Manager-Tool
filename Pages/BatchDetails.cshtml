@@ -52,6 +52,7 @@
     </div>
   </div>
 
+  @* Device stack section *@
   @if (Model.Batch.DeviceStack?.Layers.Count > 0)
   {
     <div class="details-section">
@@ -72,6 +73,115 @@
     </div>
   }
 
+  @* Measurement summary section *@
+  @if (Model.MeasurementSummaries.Count > 0)
+  {
+    <div class="details-section">
+      <div class="details-section-header">
+        <div>
+          <h2>Measurement summary</h2>
+          <p>Statistics use the latest measurement of each type for every pixel.</p>
+        </div>
+      </div>
+
+      <div class="batch-measurement-summaries">
+        @foreach (var summary in Model.MeasurementSummaries)
+        {
+          var coverage = summary.TotalDevices > 0
+              ? 100.0 * summary.MeasuredDevices / summary.TotalDevices
+              : 0;
+
+          <div class="batch-measurement-summary">
+            <div class="batch-stat-header">
+              <div>
+                <span class="measurement-type">@summary.Type</span>
+                <h3>@summary.MetricName</h3>
+              </div>
+
+              <div class="batch-stat-coverage">
+                <strong>
+                  @summary.MeasuredDevices / @summary.TotalDevices
+                </strong>
+                <span>@coverage.ToString("0.#")% coverage</span>
+              </div>
+            </div>
+
+            <div class="batch-stat-grid">
+              <div class="batch-stat">
+                <span>Average</span>
+                <strong>
+                  @Model.FormatStatistic(
+                  summary.Average,
+                  summary.Unit)
+                </strong>
+              </div>
+
+              <div class="batch-stat">
+                <span>Std. deviation</span>
+                <strong>
+                  @Model.FormatStatistic(
+                  summary.StandardDeviation,
+                  summary.Unit)
+                </strong>
+              </div>
+
+              <div class="batch-stat">
+                <span>Minimum</span>
+                <strong>
+                  @Model.FormatStatistic(
+                  summary.Minimum,
+                  summary.Unit)
+                </strong>
+              </div>
+
+              <div class="batch-stat">
+                <span>Maximum</span>
+                <strong>
+                  @Model.FormatStatistic(
+                  summary.Maximum,
+                  summary.Unit)
+                </strong>
+              </div>
+            </div>
+
+            @if (summary.ValidResults != summary.MeasuredDevices)
+            {
+              <div class="batch-stat-warning">
+                @summary.ValidResults of @summary.MeasuredDevices measured pixels
+                contain a valid @summary.MetricName result.
+              </div>
+            }
+
+            <div class="batch-substrate-statistics">
+              <div class="batch-substrate-statistics-header">
+                By substrate
+              </div>
+
+              @foreach (var sample in summary.Samples)
+              {
+                <a asp-page="/SampleDetails" asp-route-id="@sample.SampleId" class="batch-substrate-stat-row">
+
+                  <strong>@sample.SampleCode</strong>
+
+                  <span>
+                    @sample.MeasuredDevices / @sample.TotalDevices pixels
+                  </span>
+
+                  <span class="batch-substrate-average">
+                    @Model.FormatStatistic(
+                        sample.Average,
+                        summary.Unit)
+                  </span>
+                </a>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @* Notes section *@
   @if (!string.IsNullOrWhiteSpace(Model.Batch.Notes))
   {
     <div class="details-section">

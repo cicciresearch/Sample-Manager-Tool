@@ -1480,3 +1480,153 @@ body {
         display: none;
     }
 }
+
+/* ---------------------------------------------------------
+   Batch measurement statistics
+--------------------------------------------------------- */
+
+.batch-measurement-summaries {
+    display: flex;
+    flex-direction: column;
+}
+
+.batch-measurement-summary {
+    border-bottom: 1px solid #e8eaed;
+}
+
+.batch-measurement-summary:last-child {
+    border-bottom: 0;
+}
+
+.batch-stat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 22px;
+}
+
+.batch-stat-header > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.batch-stat-header h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 650;
+}
+
+.batch-stat-coverage {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.batch-stat-coverage strong {
+    font-size: 0.88rem;
+}
+
+.batch-stat-coverage span {
+    color: #858d96;
+    font-size: 0.7rem;
+}
+
+.batch-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-top: 1px solid #edf0f2;
+    border-bottom: 1px solid #edf0f2;
+}
+
+.batch-stat {
+    padding: 18px 22px;
+    border-right: 1px solid #edf0f2;
+}
+
+.batch-stat:last-child {
+    border-right: 0;
+}
+
+.batch-stat span {
+    display: block;
+    margin-bottom: 6px;
+    color: #7d858f;
+    font-size: 0.72rem;
+}
+
+.batch-stat strong {
+    font-size: 1rem;
+    font-weight: 650;
+}
+
+.batch-stat-warning {
+    padding: 11px 22px;
+    background: #fafafa;
+    border-bottom: 1px solid #edf0f2;
+    color: #737b84;
+    font-size: 0.76rem;
+}
+
+.batch-substrate-statistics {
+    padding: 0 22px 18px;
+}
+
+.batch-substrate-statistics-header {
+    padding: 16px 0 9px;
+    color: #7a828c;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.batch-substrate-stat-row {
+    display: grid;
+    grid-template-columns: 100px minmax(0, 1fr) 150px;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 12px;
+    border-radius: 7px;
+    color: #30363d;
+    text-decoration: none;
+}
+
+.batch-substrate-stat-row:hover {
+    background: #f6f7f8;
+    color: #20252b;
+}
+
+.batch-substrate-stat-row strong {
+    font-size: 0.82rem;
+}
+
+.batch-substrate-stat-row span {
+    color: #7b838d;
+    font-size: 0.78rem;
+}
+
+.batch-substrate-average {
+    text-align: right;
+    font-weight: 600;
+    color: #30363d !important;
+}
+
+@media (max-width: 700px) {
+    .batch-stat-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .batch-stat:nth-child(2) {
+        border-right: 0;
+    }
+
+    .batch-stat:nth-child(-n + 2) {
+        border-bottom: 1px solid #edf0f2;
+    }
+
+    .batch-substrate-stat-row {
+        grid-template-columns: 65px minmax(0, 1fr) auto;
+        gap: 8px;
+    }
+}

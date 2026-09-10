@@ -1,5 +1,6 @@
 using Cicci.SampleManager.Data;
 using Cicci.SampleManager.Models;
+using Cicci.SampleManager.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,20 @@ public class BatchDetailsModel : PageModel
     }
 
     public Batch Batch { get; set; } = null!;
+    public List<BatchMeasurementStatistics> MeasurementSummaries { get; set; } = [];
+
+    // Formats a nullable statistical value together with its physical unit.
+    public string FormatStatistic(
+        double? value,
+        string unit)
+    {
+        if (!value.HasValue)
+            return "—";
+
+        return string.IsNullOrWhiteSpace(unit)
+            ? value.Value.ToString("0.##")
+            : $"{value.Value:0.##} {unit}";
+    }
 
     // Loads the complete batch hierarchy used by the page.
     private async Task<bool> LoadBatchAsync(Guid id)
@@ -26,8 +41,14 @@ public class BatchDetailsModel : PageModel
             .Include(batch => batch.User)
             .Include(batch => batch.DeviceStack)
                 .ThenInclude(stack => stack!.Layers)
-            .Include(batch => batch.Samples)
-                .ThenInclude(sample => sample.Devices)
+        .Include(batch => batch.Samples)
+            .ThenInclude(sample => sample.Devices)
+                .ThenInclude(device => device.Measurements)
+                    .ThenInclude(measurement => measurement.Jv)
+        .Include(batch => batch.Samples)
+            .ThenInclude(sample => sample.Devices)
+                .ThenInclude(device => device.Measurements)
+                    .ThenInclude(measurement => measurement.Eqe)
             .AsSplitQuery()
             .FirstOrDefaultAsync(batch => batch.Id == id);
 
@@ -35,6 +56,7 @@ public class BatchDetailsModel : PageModel
             return false;
 
         Batch = batch;
+        MeasurementSummaries = MeasurementStatistics.GetBatchSummaries(batch);
         return true;
     }
 
