@@ -121,9 +121,9 @@ public class SampleManagerApiController : ControllerBase
         return Ok(batches);
     }
 
-    // Returns the substrate/device hierarchy of one batch.
-    // LabVIEW uses the substrates for its second dropdown and the nested
-    // devices for the Pixel dropdown after a substrate is selected.
+    // Returns all Sample Manager metadata belonging to one batch.
+    // Measurements are intentionally excluded because this endpoint describes
+    // the batch structure and metadata rather than measurement history.
     [HttpGet("batches/{id:guid}")]
     public async Task<IActionResult> GetBatchAsync(Guid id)
     {
@@ -133,25 +133,58 @@ public class SampleManagerApiController : ControllerBase
             .Select(batch => new
             {
                 id = batch.Id,
+                userId = batch.UserId,
                 code = batch.Code,
                 productionDate = batch.ProductionDate,
                 area = batch.Area,
+                notes = batch.Notes,
+                createdAt = batch.CreatedAt,
+                deviceStackId = batch.DeviceStackId,
 
-                // A nested JSON structure mirrors the relational hierarchy:
+                user = new
+                {
+                    id = batch.User.Id,
+                    name = batch.User.Name,
+                    isEnabled = batch.User.IsEnabled
+                },
+
+                deviceStack = batch.DeviceStack == null
+                    ? null
+                    : new
+                    {
+                        id = batch.DeviceStack.Id,
+
+                        layers = batch.DeviceStack.Layers
+                            .OrderBy(layer => layer.Position)
+                            .Select(layer => new
+                            {
+                                id = layer.Id,
+                                deviceStackId = layer.DeviceStackId,
+                                position = layer.Position,
+                                material = layer.Material
+                            })
+                            .ToList()
+                    },
+
+                // The nested structure mirrors the relational hierarchy:
                 // one batch contains substrates, and each substrate contains devices.
                 substrates = batch.Samples
                     .OrderBy(sample => sample.Code)
                     .Select(sample => new
                     {
                         id = sample.Id,
+                        batchId = sample.BatchId,
                         code = sample.Code,
+                        notes = sample.Notes,
 
                         devices = sample.Devices
                             .OrderBy(device => device.Pixel)
                             .Select(device => new
                             {
                                 id = device.Id,
-                                pixel = device.Pixel
+                                sampleId = device.SampleId,
+                                pixel = device.Pixel,
+                                notes = device.Notes
                             })
                             .ToList()
                     })
