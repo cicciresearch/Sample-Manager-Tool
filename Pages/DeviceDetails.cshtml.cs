@@ -1,5 +1,6 @@
 using Cicci.SampleManager.Data;
 using Cicci.SampleManager.Models;
+using Cicci.SampleManager.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -67,26 +68,7 @@ public class DeviceDetailsModel : PageModel
     // Returns the small result highlighted in the measurement history.
     public string GetMeasurementHighlight(Measurement measurement)
     {
-        return measurement.Type switch
-        {
-            MeasurementType.JV
-                when measurement.Jv?.EfficiencyPercent is double efficiency
-                => $"η {efficiency:0.##} %",
-
-            MeasurementType.JV
-                when measurement.Jv?.VocV is double voc
-                => $"Voc {voc:0.###} V",
-
-            MeasurementType.EQE
-                when measurement.Eqe?.Jsc is double jsc
-                => $"Jsc {jsc:0.##} mA/cm²",
-
-            MeasurementType.EQE
-                when measurement.Eqe?.PeakEQE is double peakEqe
-                => $"Peak EQE {peakEqe:0.##} %",
-
-            _ => "No summary"
-        };
+        return MeasurementDisplay.GetHighlight(measurement);
     }
 
     // Formats nullable scientific results for display.

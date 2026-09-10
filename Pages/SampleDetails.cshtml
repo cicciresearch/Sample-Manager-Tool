@@ -1,0 +1,109 @@
+@page "{id:guid}"
+@model Cicci.SampleManager.Pages.SampleDetailsModel
+
+@{
+  ViewData["Title"] = $"{Model.Sample.Batch.Code} - {Model.Sample.Code}";
+}
+
+<div class="sample-page">
+  <div class="details-header">
+    <div>
+      <a asp-page="/BatchDetails"
+         asp-route-id="@Model.Sample.Batch.Id"
+         class="details-back">
+        ← Back to @Model.Sample.Batch.Code
+      </a>
+
+      <div class="eyebrow">@Model.Sample.Batch.Code</div>
+      <h1>Substrate @Model.Sample.Code</h1>
+      <p>
+        @Model.Sample.Devices.Count pixel(s) ·
+        @Model.TotalMeasurements measurement(s)
+      </p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span>Pixels</span>
+      <strong>@Model.Sample.Devices.Count</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Measured pixels</span>
+      <strong>@Model.MeasuredDevices</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Measurements</span>
+      <strong>@Model.TotalMeasurements</strong>
+    </div>
+  </div>
+
+  @if (!string.IsNullOrWhiteSpace(Model.Sample.Notes))
+  {
+    <div class="details-section">
+      <div class="details-section-header">
+        <h2>Notes</h2>
+      </div>
+
+      <div class="details-notes">
+        @Model.Sample.Notes
+      </div>
+    </div>
+  }
+
+  <div class="details-section">
+    <div class="details-section-header">
+      <div>
+        <h2>Pixels</h2>
+        <p>Latest result for each measurement type.</p>
+      </div>
+    </div>
+
+    @if (Model.Sample.Devices.Count == 0)
+    {
+      <div class="measurement-empty">
+        No pixels belong to this substrate yet.
+      </div>
+    }
+    else
+    {
+      <div class="sample-device-list">
+        @foreach (var device in Model.Sample.Devices.OrderBy(device => device.Pixel))
+        {
+          <a asp-page="/DeviceDetails"
+             asp-route-id="@device.Id"
+             class="sample-device-row">
+
+            <div class="sample-device-main">
+              <strong>@device.Pixel</strong>
+              <span>@device.Measurements.Count measurement(s)</span>
+            </div>
+
+            @if (device.Measurements.Count == 0)
+            {
+              <div class="sample-device-empty">
+                No measurements
+              </div>
+            }
+            else
+            {
+              <div class="sample-latest-measurements">
+                @foreach (var measurement in Model.GetLatestMeasurements(device))
+                {
+                  <div class="sample-measurement-chip">
+                    <span>@measurement.Type</span>
+                    <strong>@Model.GetMeasurementHighlight(measurement)</strong>
+                  </div>
+                }
+              </div>
+            }
+
+            <span class="sample-device-open">›</span>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</div>

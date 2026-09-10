@@ -8,11 +8,11 @@
 }
 
 <div class="sample-page">
-  <div class="details-header"> 
+  <div class="details-header">
     <div>
-      <a asp-page="/BatchDetails"
-         asp-route-id="@Model.Device.Sample.Batch.Id"
-         class="details-back">← Back to @Model.Device.Sample.Batch.Code</a>
+      <a asp-page="/SampleDetails" asp-route-id="@Model.Device.Sample.Id" class="details-back">
+        ← Back to @Model.Device.Sample.Code
+      </a>
 
       <div class="eyebrow">
         @Model.Device.Sample.Batch.Code · @Model.Device.Sample.Code
@@ -50,9 +50,7 @@
         {
           var isSelected = selected?.Id == measurement.Id;
 
-          <a asp-page="/DeviceDetails"
-             asp-route-id="@Model.Device.Id"
-             asp-route-measurementId="@measurement.Id"
+          <a asp-page="/DeviceDetails" asp-route-id="@Model.Device.Id" asp-route-measurementId="@measurement.Id"
              class="measurement-history-row @(isSelected ? "selected" : "")">
 
             <div class="measurement-history-time">

@@ -2,214 +2,201 @@
 @model Cicci.SampleManager.Pages.IndexModel
 
 @{
-    ViewData["Title"] = "Sample Manager";
+  ViewData["Title"] = "Sample Manager";
 
-    var totalSamples =
-        Model.Batches.Sum(batch => batch.Samples.Count);
+  var totalSamples =
+      Model.Batches.Sum(batch => batch.Samples.Count);
 
-    var totalDevices =
-        Model.Batches.Sum(
-            batch => batch.Samples.Sum(
-                sample => sample.Devices.Count
-            )
-        );
+  var totalDevices =
+      Model.Batches.Sum(
+          batch => batch.Samples.Sum(
+              sample => sample.Devices.Count
+          )
+      );
 }
 
 <div class="sample-page">
-    <div class="page-header">
-        <div>
-            <div class="eyebrow">CICCI RESEARCH</div>
-            <h1>Sample Manager</h1>
-            <p>Manage production batches, samples and devices.</p>
-        </div>
-
-        <a asp-page="/CreateBatch" 
-        asp-route-userId="@Model.SelectedUserId"
-           class="new-sample-button">
-            + New Batch
-        </a>
-
+  <div class="page-header">
+    <div>
+      <div class="eyebrow">CICCI RESEARCH</div>
+      <h1>Sample Manager</h1>
+      <p>Manage production batches, samples and devices.</p>
     </div>
 
-    <form method="get" class="filter-bar">
-        <div class="user-row">
-            <div class="filter-field user-field">
-                <label for="userId">Active user</label>
+    <a asp-page="/CreateBatch" asp-route-userId="@Model.SelectedUserId" class="new-sample-button">
+      + New Batch
+    </a>
 
-                @if (Model.Users.Count > 0)
-                {
-                    <select id="userId" name="userId" onchange="this.form.submit()">
-                        @foreach (var user in Model.Users)
-                        {
-                            <option value="@user.Id" selected="@(user.Id == Model.SelectedUserId)">@user.Name</option>
-                        }
-                    </select>
-                }
-                else
-                {
-                    <select disabled>
-                        <option>No users available</option>
-                    </select>
-                }
-            </div>
+  </div>
 
-            <a asp-page="/CreateUser" class="edit-button new-user-button">+ New User</a>
-        </div>
+  <form method="get" class="filter-bar">
+    <div class="user-row">
+      <div class="filter-field user-field">
+        <label for="userId">Active user</label>
 
-        <div class="filter-row">
-            <div class="filter-field filter-search">
-                <label for="search">Search</label>
-                <input id="search" name="search" type="search" value="@Model.Search"
-                    placeholder="Batch, substrate, pixel, stack, notes..." />
-            </div>
-
-            <div class="filter-field date-filter">
-                <label for="fromDate">From</label>
-                <input id="fromDate" name="fromDate" type="date"
-                    value="@Model.FromDate?.ToString("yyyy-MM-dd")" />
-            </div>
-
-            <div class="filter-field date-filter">
-                <label for="toDate">To</label>
-                <input id="toDate" name="toDate" type="date"
-                    value="@Model.ToDate?.ToString("yyyy-MM-dd")" />
-            </div>
-
-            <div class="filter-actions">
-                <button type="submit" class="filter-button">Apply</button>
-
-                @if (Model.HasActiveFilters)
-                {
-                    <a asp-page="/Index"
-                    asp-route-userId="@Model.SelectedUserId"
-                    class="clear-filter-button">Clear</a>
-                }
-            </div>
-        </div>
-    </form>
-
-    <div class="stats-grid">
-
-        <div class="stat-card">
-            <span>Batches</span>
-            <strong>@Model.Batches.Count</strong>
-        </div>
-
-        <div class="stat-card">
-            <span>Samples</span>
-            <strong>@totalSamples</strong>
-        </div>
-
-        <div class="stat-card">
-            <span>Devices</span>
-            <strong>@totalDevices</strong>
-        </div>
-
-    </div>
-
-        <div></div>
-    @if (Model.Batches.Count == 0)
-    {
-        <div class="empty-state">
-            @if (Model.HasActiveFilters)
-            {
-                <h2>No matching batches</h2>
-                <p>Try changing the search text or date filters.</p>
-
-                <a asp-page="/Index"
-                asp-route-userId="@Model.SelectedUserId"
-                class="edit-button">Clear filters</a>
-            }
-            else
-            {
-                <h2>No batches yet</h2>
-                <p>Create your first production batch to start registering samples and devices.</p>
-                <a asp-page="/CreateBatch" 
-                asp-route-userId="@Model.SelectedUserId"
-                class="new-sample-button">Create first batch
-                </a>
-            }
-        </div>
-    }
-    else {
-    <div class="batch-list">
-        @foreach (var batch in Model.Batches)
+        @if (Model.Users.Count > 0)
         {
-            <details class="batch-card">
-                <summary class="batch-header">
-                    <div class="batch-summary-main">
-                        <div class="batch-code">@batch.Code</div>
-                        <div class="batch-meta">
-                            Produced @batch.ProductionDate.ToString("dd/MM/yyyy")
-                            @if (batch.Area.HasValue)
-                            {
-                                <span> · @batch.Area.Value cm²</span>
-                            }
-                        </div>
-                    </div>
-
-                    <div class="batch-summary-right">
-                        <div class="batch-counts">
-                            <span>@batch.Samples.Count substrate(s)</span>
-                            <span>@batch.Samples.Sum(sample => sample.Devices.Count) devices</span>
-                        </div>
-                        <span class="batch-chevron">⌄</span>
-                    </div>
-                </summary>
-
-                <div class="batch-content">
-                    @if (batch.DeviceStack?.Layers.Count > 0)
-                    {
-                        <div class="batch-stack">
-                            <span>Device stack</span>
-                            <strong>
-                                @string.Join(" / ", batch.DeviceStack.Layers
-                                    .OrderBy(layer => layer.Position)
-                                    .Select(layer => layer.Material))
-                            </strong>
-                        </div>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(batch.Notes))
-                    {
-                        <div class="batch-notes">@batch.Notes</div>
-                    }
-
-                    <div class="sample-groups">
-                        @foreach (var sample in batch.Samples.OrderBy(sample => sample.Code))
-                        {
-                            <div class="sample-group">
-                                <div class="sample-code">@sample.Code</div>
-
-                                <div class="device-list">
-                                    @foreach (var device in sample.Devices.OrderBy(device => device.Pixel))
-                                    {
-                                    <a asp-page="/DeviceDetails"
-                                        asp-route-id="@device.Id"
-                                        class="device-chip device-chip-link">
-                                        <span class="device-name">
-                                        @batch.Code · @sample.Code · @device.Pixel
-                                        </span>
-                                    </a>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    </div>
-
-                    <div class="batch-footer">
-                        <a asp-page="/BatchDetails"
-                        asp-route-id="@batch.Id"
-                        class="details-button">Open</a>
-
-                        <a asp-page="/EditBatch"
-                        asp-route-id="@batch.Id"
-                        class="edit-button">Edit Batch</a>
-                    </div>
-                </div>
-            </details>
+          <select id="userId" name="userId" onchange="this.form.submit()">
+            @foreach (var user in Model.Users)
+            {
+              <option value="@user.Id" selected="@(user.Id == Model.SelectedUserId)">@user.Name</option>
+            }
+          </select>
         }
+        else
+        {
+          <select disabled>
+            <option>No users available</option>
+          </select>
+        }
+      </div>
+
+      <a asp-page="/CreateUser" class="edit-button new-user-button">+ New User</a>
     </div>
-    }
+
+    <div class="filter-row">
+      <div class="filter-field filter-search">
+        <label for="search">Search</label>
+        <input id="search" name="search" type="search" value="@Model.Search"
+               placeholder="Batch, substrate, pixel, stack, notes..." />
+      </div>
+
+      <div class="filter-field date-filter">
+        <label for="fromDate">From</label>
+        <input id="fromDate" name="fromDate" type="date" value="@Model.FromDate?.ToString("yyyy-MM-dd")" />
+      </div>
+
+      <div class="filter-field date-filter">
+        <label for="toDate">To</label>
+        <input id="toDate" name="toDate" type="date" value="@Model.ToDate?.ToString("yyyy-MM-dd")" />
+      </div>
+
+      <div class="filter-actions">
+        <button type="submit" class="filter-button">Apply</button>
+
+        @if (Model.HasActiveFilters)
+        {
+          <a asp-page="/Index" asp-route-userId="@Model.SelectedUserId" class="clear-filter-button">Clear</a>
+        }
+      </div>
+    </div>
+  </form>
+
+  <div class="stats-grid">
+
+    <div class="stat-card">
+      <span>Batches</span>
+      <strong>@Model.Batches.Count</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Samples</span>
+      <strong>@totalSamples</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Devices</span>
+      <strong>@totalDevices</strong>
+    </div>
+
+  </div>
+
+  <div></div>
+  @if (Model.Batches.Count == 0)
+  {
+    <div class="empty-state">
+      @if (Model.HasActiveFilters)
+      {
+        <h2>No matching batches</h2>
+        <p>Try changing the search text or date filters.</p>
+
+        <a asp-page="/Index" asp-route-userId="@Model.SelectedUserId" class="edit-button">Clear filters</a>
+      }
+      else
+      {
+        <h2>No batches yet</h2>
+        <p>Create your first production batch to start registering samples and devices.</p>
+        <a asp-page="/CreateBatch" asp-route-userId="@Model.SelectedUserId" class="new-sample-button">Create first batch
+        </a>
+      }
+    </div>
+  }
+  else
+  {
+    <div class="batch-list">
+      @foreach (var batch in Model.Batches)
+      {
+        <details class="batch-card">
+          <summary class="batch-header">
+            <div class="batch-summary-main">
+              <div class="batch-code">@batch.Code</div>
+              <div class="batch-meta">
+                Produced @batch.ProductionDate.ToString("dd/MM/yyyy")
+                @if (batch.Area.HasValue)
+                {
+                  <span> · @batch.Area.Value cm²</span>
+                }
+              </div>
+            </div>
+
+            <div class="batch-summary-right">
+              <div class="batch-counts">
+                <span>@batch.Samples.Count substrate(s)</span>
+                <span>@batch.Samples.Sum(sample => sample.Devices.Count) devices</span>
+              </div>
+              <span class="batch-chevron">⌄</span>
+            </div>
+          </summary>
+
+          <div class="batch-content">
+            @if (batch.DeviceStack?.Layers.Count > 0)
+            {
+              <div class="batch-stack">
+                <span>Device stack</span>
+                <strong>
+                  @string.Join(" / ", batch.DeviceStack.Layers
+                      .OrderBy(layer => layer.Position)
+                      .Select(layer => layer.Material))
+                </strong>
+              </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(batch.Notes))
+            {
+              <div class="batch-notes">@batch.Notes</div>
+            }
+
+            <div class="sample-groups">
+              @foreach (var sample in batch.Samples.OrderBy(sample => sample.Code))
+              {
+                <div class="sample-group">
+                  <a asp-page="/SampleDetails" asp-route-id="@sample.Id" class="sample-code sample-details-link">
+                    @sample.Code
+                  </a>
+
+                  <div class="device-list">
+                    @foreach (var device in sample.Devices.OrderBy(device => device.Pixel))
+                    {
+                      <a asp-page="/DeviceDetails" asp-route-id="@device.Id" class="device-chip device-chip-link">
+                        <span class="device-name">
+                          @batch.Code · @sample.Code · @device.Pixel
+                        </span>
+                      </a>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="batch-footer">
+              <a asp-page="/BatchDetails" asp-route-id="@batch.Id" class="details-button">Open</a>
+
+              <a asp-page="/EditBatch" asp-route-id="@batch.Id" class="edit-button">Edit Batch</a>
+            </div>
+          </div>
+        </details>
+      }
+    </div>
+  }
 
 </div>

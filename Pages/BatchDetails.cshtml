@@ -2,220 +2,193 @@
 @model Cicci.SampleManager.Pages.BatchDetailsModel
 
 @{
-    ViewData["Title"] = Model.Batch.Code;
+  ViewData["Title"] = Model.Batch.Code;
 
-    var totalDevices = Model.Batch.Samples
-        .Sum(sample => sample.Devices.Count);
+  var totalDevices = Model.Batch.Samples
+      .Sum(sample => sample.Devices.Count);
 }
 
 <div class="sample-page">
-    <div class="details-header">
-        <div>
-            <a asp-page="/Index"
-               asp-route-userId="@Model.Batch.UserId"
-               class="details-back">← Back to batches</a>
+  <div class="details-header">
+    <div>
+      <a asp-page="/Index" asp-route-userId="@Model.Batch.UserId" class="details-back">← Back to batches</a>
 
-            <div class="eyebrow">BATCH</div>
-            <h1>@Model.Batch.Code</h1>
-            <p>
-                @Model.Batch.Samples.Count substrate(s) ·
-                @totalDevices devices
-            </p>
-        </div>
-
-        <a asp-page="/EditBatch"
-           asp-route-id="@Model.Batch.Id"
-           class="edit-button">
-            Edit Batch
-        </a>
+      <div class="eyebrow">BATCH</div>
+      <h1>@Model.Batch.Code</h1>
+      <p>
+        @Model.Batch.Samples.Count substrate(s) ·
+        @totalDevices devices
+      </p>
     </div>
 
-    <div class="batch-info-grid">
-        <div class="batch-info-card">
-            <span>User</span>
-            <strong>@Model.Batch.User.Name</strong>
-        </div>
+    <a asp-page="/EditBatch" asp-route-id="@Model.Batch.Id" class="edit-button">
+      Edit Batch
+    </a>
+  </div>
 
-        <div class="batch-info-card">
-            <span>Production date</span>
-            <strong>@Model.Batch.ProductionDate.ToString("dd/MM/yyyy")</strong>
-        </div>
-
-        <div class="batch-info-card">
-            <span>Area</span>
-            <strong>
-                @(Model.Batch.Area.HasValue
-                    ? $"{Model.Batch.Area.Value} cm²"
-                    : "—")
-            </strong>
-        </div>
-
-        <div class="batch-info-card">
-            <span>Substrates</span>
-            <strong>@Model.Batch.Samples.Count</strong>
-        </div>
+  <div class="batch-info-grid">
+    <div class="batch-info-card">
+      <span>User</span>
+      <strong>@Model.Batch.User.Name</strong>
     </div>
 
-    @if (Model.Batch.DeviceStack?.Layers.Count > 0)
-    {
-        <div class="details-section">
-            <div class="details-section-header">
-                <h2>Device stack</h2>
-            </div>
+    <div class="batch-info-card">
+      <span>Production date</span>
+      <strong>@Model.Batch.ProductionDate.ToString("dd/MM/yyyy")</strong>
+    </div>
 
-            <div class="stack-layers">
-                @foreach (var layer in Model.Batch.DeviceStack.Layers
-                    .OrderBy(layer => layer.Position))
-                {
-                    <div class="stack-layer">
-                        <span>@layer.Position</span>
-                        <strong>@layer.Material</strong>
-                    </div>
-                }
-            </div>
-        </div>
-    }
+    <div class="batch-info-card">
+      <span>Area</span>
+      <strong>
+        @(Model.Batch.Area.HasValue
+            ? $"{Model.Batch.Area.Value} cm²"
+            : "—")
+      </strong>
+    </div>
 
-    @if (!string.IsNullOrWhiteSpace(Model.Batch.Notes))
-    {
-        <div class="details-section">
-            <div class="details-section-header">
-                <h2>Notes</h2>
-            </div>
+    <div class="batch-info-card">
+      <span>Substrates</span>
+      <strong>@Model.Batch.Samples.Count</strong>
+    </div>
+  </div>
 
-            <div class="details-notes">
-                @Model.Batch.Notes
-            </div>
-        </div>
-    }
-
+  @if (Model.Batch.DeviceStack?.Layers.Count > 0)
+  {
     <div class="details-section">
-        <div class="details-section-header">
+      <div class="details-section-header">
+        <h2>Device stack</h2>
+      </div>
+
+      <div class="stack-layers">
+        @foreach (var layer in Model.Batch.DeviceStack.Layers
+            .OrderBy(layer => layer.Position))
+        {
+          <div class="stack-layer">
+            <span>@layer.Position</span>
+            <strong>@layer.Material</strong>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!string.IsNullOrWhiteSpace(Model.Batch.Notes))
+  {
+    <div class="details-section">
+      <div class="details-section-header">
+        <h2>Notes</h2>
+      </div>
+
+      <div class="details-notes">
+        @Model.Batch.Notes
+      </div>
+    </div>
+  }
+
+  <div class="details-section">
+    <div class="details-section-header">
+      <div>
+        <h2>Substrates</h2>
+        <p>Manage substrates and pixels belonging to this batch.</p>
+      </div>
+
+      @* Named handlers let several different POST operations live on the same Razor Page. *@
+      <form method="post" asp-page-handler="AddSample" asp-route-id="@Model.Batch.Id">
+        <button type="submit" class="details-button">+ Add Substrate</button>
+      </form>
+    </div>
+
+    <div asp-validation-summary="ModelOnly" class="structure-validation"></div>
+
+    <div class="substrate-list">
+      @foreach (var sample in Model.Batch.Samples.OrderBy(sample => sample.Code))
+      {
+        <div class="substrate-card">
+          <div class="substrate-header">
             <div>
-                <h2>Substrates</h2>
-                <p>Manage substrates and pixels belonging to this batch.</p>
+              <a asp-page="/SampleDetails" asp-route-id="@sample.Id" class="substrate-code sample-details-link">
+                @sample.Code
+              </a>
+              <div class="substrate-meta">@sample.Devices.Count pixel(s)</div>
             </div>
 
-            @* Named handlers let several different POST operations live on the same Razor Page. *@
-            <form method="post"
-                asp-page-handler="AddSample"
-                asp-route-id="@Model.Batch.Id">
-                <button type="submit" class="details-button">+ Add Substrate</button>
-            </form>
-        </div>
+            <div class="structure-actions">
+              <form method="post" asp-page-handler="AddDevice" asp-route-id="@Model.Batch.Id">
+                <input type="hidden" name="sampleId" value="@sample.Id" />
+                <button type="submit" class="edit-button">+ Add Pixel</button>
+              </form>
 
-        <div asp-validation-summary="ModelOnly"
-            class="structure-validation"></div>
+              <details class="rename-control">
+                <summary class="edit-button">Rename</summary>
 
-        <div class="substrate-list">
-            @foreach (var sample in Model.Batch.Samples.OrderBy(sample => sample.Code))
-            {
-                <div class="substrate-card">
-                    <div class="substrate-header">
-                        <div>
-                            <div class="substrate-code">@sample.Code</div>
-                            <div class="substrate-meta">@sample.Devices.Count pixel(s)</div>
-                        </div>
+                <form method="post" asp-page-handler="RenameSample" asp-route-id="@Model.Batch.Id" class="rename-form">
 
-                        <div class="structure-actions">
-                            <form method="post"
-                                asp-page-handler="AddDevice"
-                                asp-route-id="@Model.Batch.Id">
-                                <input type="hidden" name="sampleId" value="@sample.Id" />
-                                <button type="submit" class="edit-button">+ Add Pixel</button>
-                            </form>
+                  <input type="hidden" name="sampleId" value="@sample.Id" />
 
-                            <details class="rename-control">
-                                <summary class="edit-button">Rename</summary>
+                  <input type="text" name="code" value="@sample.Code" maxlength="100" />
 
-                                <form method="post"
-                                    asp-page-handler="RenameSample"
-                                    asp-route-id="@Model.Batch.Id"
-                                    class="rename-form">
+                  <button type="submit" class="filter-button">
+                    Save
+                  </button>
+                </form>
+              </details>
+            </div>
+          </div>
 
-                                    <input type="hidden"
-                                        name="sampleId"
-                                        value="@sample.Id" />
+          @if (!string.IsNullOrWhiteSpace(sample.Notes))
+          {
+            <div class="substrate-notes">
+              @sample.Notes
+            </div>
+          }
 
-                                    <input type="text"
-                                        name="code"
-                                        value="@sample.Code"
-                                        maxlength="100" />
+          @if (sample.Devices.Count == 0)
+          {
+            <div class="empty-pixels">
+              No pixels yet.
+            </div>
+          }
+          else
+          {
+            <div class="pixel-grid">
+              @foreach (var device in sample.Devices.OrderBy(device => device.Pixel))
+              {
+                <div class="pixel-card">
+                  <div class="pixel-card-header">
+                    <a asp-page="/DeviceDetails" asp-route-id="@device.Id" class="pixel-details-link">
+                      @device.Pixel
+                    </a>
 
-                                    <button type="submit"
-                                            class="filter-button">
-                                        Save
-                                    </button>
-                                </form>
-                            </details>
-                        </div>
-                    </div>
+                    <details class="rename-control pixel-rename">
+                      <summary>Rename</summary>
 
-                    @if (!string.IsNullOrWhiteSpace(sample.Notes))
-                    {
-                        <div class="substrate-notes">
-                            @sample.Notes
-                        </div>
-                    }
+                      <form method="post" asp-page-handler="RenameDevice" asp-route-id="@Model.Batch.Id" class="rename-form">
 
-                    @if (sample.Devices.Count == 0)
-                    {
-                        <div class="empty-pixels">
-                            No pixels yet.
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="pixel-grid">
-                            @foreach (var device in sample.Devices.OrderBy(device => device.Pixel))
-                            {
-                                <div class="pixel-card">
-                                    <div class="pixel-card-header">
-                                        <a asp-page="/DeviceDetails"
-                                            asp-route-id="@device.Id"
-                                            class="pixel-details-link">
-                                            @device.Pixel
-                                        </a>
+                        <input type="hidden" name="deviceId" value="@device.Id" />
 
-                                        <details class="rename-control pixel-rename">
-                                            <summary>Rename</summary>
+                        <input type="text" name="pixel" value="@device.Pixel" maxlength="100" />
 
-                                            <form method="post"
-                                                asp-page-handler="RenameDevice"
-                                                asp-route-id="@Model.Batch.Id"
-                                                class="rename-form">
+                        <button type="submit" class="filter-button">
+                          Save
+                        </button>
+                      </form>
+                    </details>
+                  </div>
 
-                                                <input type="hidden"
-                                                    name="deviceId"
-                                                    value="@device.Id" />
+                  <span>
+                    @Model.Batch.Code · @sample.Code · @device.Pixel
+                  </span>
 
-                                                <input type="text"
-                                                    name="pixel"
-                                                    value="@device.Pixel"
-                                                    maxlength="100" />
-
-                                                <button type="submit"
-                                                        class="filter-button">
-                                                    Save
-                                                </button>
-                                            </form>
-                                        </details>
-                                    </div>
-
-                                    <span>
-                                        @Model.Batch.Code · @sample.Code · @device.Pixel
-                                    </span>
-
-                                    @if (!string.IsNullOrWhiteSpace(device.Notes))
-                                    {
-                                        <small>@device.Notes</small>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    }
+                  @if (!string.IsNullOrWhiteSpace(device.Notes))
+                  {
+                    <small>@device.Notes</small>
+                  }
                 </div>
-            }
+              }
+            </div>
+          }
         </div>
+      }
     </div>
+  </div>
 </div>
