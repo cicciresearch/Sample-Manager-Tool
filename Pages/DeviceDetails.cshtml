@@ -92,7 +92,7 @@
             <span>Data path</span>
             @if (!string.IsNullOrWhiteSpace(selected.DataPath))
             {
-              <div class="measurement-data-file">
+              <div>
                 <code class="measurement-path">@selected.DataPath</code>
                 <a asp-page="/DeviceDetails"
                    asp-page-handler="DataFile"
@@ -100,7 +100,7 @@
                    asp-route-measurementId="@selected.Id"
                    target="_blank"
                    rel="noopener"
-                   class="measurement-file-button">
+                   class="edit-button">
                   Open data file ↗
                 </a>
               </div>
