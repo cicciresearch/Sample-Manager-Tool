@@ -1708,3 +1708,139 @@ body {
         gap: 8px;
     }
 }
+
+/* ---------------------------------------------------------
+   Measurement overview / filtering / pagination
+--------------------------------------------------------- */
+
+.latest-measurement-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1px;
+    background: #e8eaed;
+}
+
+.latest-measurement-card {
+    min-width: 0;
+    padding: 16px 18px;
+    background: white;
+    color: #20252b;
+    text-decoration: none;
+}
+
+.latest-measurement-card:hover {
+    background: #fafbfc;
+    color: #20252b;
+}
+
+.latest-measurement-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.latest-measurement-header > span:last-child {
+    color: #858d96;
+    font-size: 0.68rem;
+}
+
+.latest-measurement-card > strong {
+    display: block;
+    font-size: 1rem;
+    font-weight: 650;
+}
+
+.measurement-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    padding: 12px 22px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.measurement-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px;
+    border: 1px solid #dde1e5;
+    border-radius: 20px;
+    color: #626b75;
+    font-size: 0.74rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.measurement-filter:hover {
+    background: #f5f6f7;
+    color: #20252b;
+}
+
+.measurement-filter.selected {
+    background: #20252b;
+    border-color: #20252b;
+    color: white;
+}
+
+.measurement-filter span {
+    opacity: 0.7;
+    font-size: 0.68rem;
+}
+
+.measurement-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 14px 22px;
+    border-top: 1px solid #e8eaed;
+}
+
+.measurement-pagination-info {
+    color: #7d858f;
+    font-size: 0.74rem;
+}
+
+.measurement-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.measurement-page-button {
+    padding: 6px 10px;
+    border: 1px solid #dde1e5;
+    border-radius: 6px;
+    color: #505963;
+    font-size: 0.74rem;
+    text-decoration: none;
+}
+
+.measurement-page-button:hover {
+    background: #f5f6f7;
+    color: #20252b;
+}
+
+.measurement-page-button.disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.measurement-page-current {
+    color: #686f78;
+    font-size: 0.74rem;
+    font-weight: 600;
+}
+
+@media (max-width: 650px) {
+    .measurement-pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .measurement-pagination-controls {
+        justify-content: space-between;
+    }
+}

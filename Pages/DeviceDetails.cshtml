@@ -18,13 +18,52 @@
       </div>
       <h1>Pixel @Model.Device.Pixel</h1>
       <div class="details-back"> @Model.Device.Id </div>
-      <p>@Model.Measurements.Count measurement(s)</p>
+      <p>@Model.TotalMeasurementCount measurement(s)</p>
     </div>
   </div>
 
   @if (!string.IsNullOrWhiteSpace(Model.Device.Notes))
   {
     <div class="device-details-note">@Model.Device.Notes</div>
+  }
+
+  @if (Model.LatestMeasurements.Count > 0)
+  {
+    <div class="details-section">
+      <div class="details-section-header">
+        <div>
+          <h2>Latest results</h2>
+          <p>Newest measurement of each available type.</p>
+        </div>
+      </div>
+
+      <div class="latest-measurement-grid">
+        @foreach (var measurement in Model.LatestMeasurements)
+        {
+          <a asp-page="/DeviceDetails"
+            asp-route-id="@Model.Device.Id"
+            asp-route-type="@measurement.Type"
+            asp-route-page="1"
+            asp-route-measurementId="@measurement.Id"
+            class="latest-measurement-card">
+
+            <div class="latest-measurement-header">
+              <span class="measurement-type">
+                @measurement.Type
+              </span>
+
+              <span>
+                @measurement.MeasuredAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")
+              </span>
+            </div>
+
+            <strong>
+              @Model.GetMeasurementHighlight(measurement)
+            </strong>
+          </a>
+        }
+      </div>
+    </div>
   }
 
   <div class="details-section">
@@ -35,10 +74,37 @@
       </div>
     </div>
 
-    @if (Model.Measurements.Count == 0)
+    <div class="measurement-filters">
+      <a asp-page="/DeviceDetails"
+        asp-route-id="@Model.Device.Id"
+        class="measurement-filter @(Model.SelectedType == null ? "selected" : "")">
+        All
+        <span>@Model.TotalMeasurementCount</span>
+      </a>
+
+      @foreach (var typeCount in Model.MeasurementTypeCounts)
+      {
+        <a asp-page="/DeviceDetails"
+          asp-route-id="@Model.Device.Id"
+          asp-route-type="@typeCount.Type"
+          class="measurement-filter @(Model.SelectedType == typeCount.Type ? "selected" : "")">
+          @typeCount.Type
+          <span>@typeCount.Count</span>
+        </a>
+      }
+    </div>
+
+    @if (Model.FilteredMeasurementCount == 0)
     {
       <div class="measurement-empty">
-        No measurements have been recorded for this pixel yet.
+        @if (Model.TotalMeasurementCount == 0)
+        {
+          <span>No measurements have been recorded for this pixel yet.</span>
+        }
+        else
+        {
+          <span>No @Model.SelectedType measurements have been recorded for this pixel.</span>
+        }
       </div>
     }
     else
@@ -51,6 +117,8 @@
           <div class="measurement-history-row @(isSelected ? "selected" : "")">
             <a asp-page="/DeviceDetails"
               asp-route-id="@Model.Device.Id"
+              asp-route-type="@Model.SelectedType"
+              asp-route-page="@Model.CurrentPage"
               asp-route-measurementId="@measurement.Id"
               class="measurement-history-link">
 
@@ -73,6 +141,8 @@
             <form method="post"
                   asp-page-handler="DeleteMeasurement"
                   asp-route-id="@Model.Device.Id"
+                  asp-route-type="@Model.SelectedType"
+                  asp-route-page="@Model.CurrentPage"
                   class="measurement-delete-form"
                   onsubmit="return confirm('Permanently delete this measurement from the Sample Manager database?');">
 
@@ -89,6 +159,64 @@
           </div>
         }
       </div>
+
+      @if (Model.FilteredMeasurementCount > 0)
+      {
+        var firstMeasurement =
+            ((Model.CurrentPage - 1) * Model.PageSize) + 1;
+
+        var lastMeasurement =
+            Math.Min(
+                Model.CurrentPage * Model.PageSize,
+                Model.FilteredMeasurementCount);
+
+        <div class="measurement-pagination">
+          <div class="measurement-pagination-info">
+            Showing @firstMeasurement–@lastMeasurement
+            of @Model.FilteredMeasurementCount
+          </div>
+
+          <div class="measurement-pagination-controls">
+            @if (Model.CurrentPage > 1)
+            {
+              <a asp-page="/DeviceDetails"
+                asp-route-id="@Model.Device.Id"
+                asp-route-type="@Model.SelectedType"
+                asp-route-page="@(Model.CurrentPage - 1)"
+                class="measurement-page-button">
+                ← Previous
+              </a>
+            }
+            else
+            {
+              <span class="measurement-page-button disabled">
+                ← Previous
+              </span>
+            }
+
+            <span class="measurement-page-current">
+              Page @Model.CurrentPage of @Model.PageCount
+            </span>
+
+            @if (Model.CurrentPage < Model.PageCount)
+            {
+              <a asp-page="/DeviceDetails"
+                asp-route-id="@Model.Device.Id"
+                asp-route-type="@Model.SelectedType"
+                asp-route-page="@(Model.CurrentPage + 1)"
+                class="measurement-page-button">
+                Next →
+              </a>
+            }
+            else
+            {
+              <span class="measurement-page-button disabled">
+                Next →
+              </span>
+            }
+          </div>
+        </div>
+      }
     }
   </div>
 
