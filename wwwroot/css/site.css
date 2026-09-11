@@ -1844,3 +1844,28 @@ body {
         justify-content: space-between;
     }
 }
+
+/* ---------------------------------------------------------
+   Measurement plots
+--------------------------------------------------------- */
+
+.measurement-plot-card {
+    margin-top: 18px;
+    border: 1px solid #e3e6e9;
+    border-radius: 9px;
+    background: white;
+    overflow: hidden;
+}
+
+.jv-chart-container {
+    position: relative;
+    height: 420px;
+    padding: 12px 18px 18px;
+}
+
+@media (max-width: 650px) {
+    .jv-chart-container {
+        height: 320px;
+        padding: 10px;
+    }
+}

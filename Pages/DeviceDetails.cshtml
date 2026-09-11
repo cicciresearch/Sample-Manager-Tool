@@ -1,6 +1,7 @@
 @page "{id:guid}"
 @model Cicci.SampleManager.Pages.DeviceDetailsModel
 @using Cicci.SampleManager.Models
+@using System.Text.Json
 
 @{
   ViewData["Title"] = $"{Model.Device.Sample.Batch.Code} - {Model.Device.Sample.Code} - {Model.Device.Pixel}";
@@ -396,5 +397,141 @@
         }
       </div>
     </div>
+
+    @if (selected.Type == MeasurementType.JV && Model.JvPlot != null)
+    {
+      <div class="measurement-plot-card">
+        <div class="measurement-card-header">
+          <div>
+            <div class="eyebrow">RAW DATA</div>
+            <h2>JV curve</h2>
+          </div>
+        </div>
+
+        @if (Model.JvPlot.HasData)
+        {
+          <div class="jv-chart-container">
+            <canvas id="jvChart"></canvas>
+          </div>
+        }
+        else
+        {
+          <div class="measurement-empty">
+            Plot unavailable.
+            @if (!string.IsNullOrWhiteSpace(Model.JvPlot.Error))
+            {
+              <span>@Model.JvPlot.Error</span>
+            }
+          </div>
+        }
+      </div>
+    }
   }
 </div>
+
+@section Scripts {
+  @if (Model.JvPlot?.HasData == true)
+  {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+    <script>
+      (() => {
+        const plot = @Html.Raw(
+          JsonSerializer.Serialize(
+            Model.JvPlot,
+            new JsonSerializerOptions
+            {
+              PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }
+          )
+        );
+
+        const datasets = [];
+
+        if (plot.forward.length > 0) {
+          datasets.push({
+            label: "Forward",
+            data: plot.forward,
+            showLine: true,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            borderWidth: 2,
+            borderColor: "#2563eb",
+            backgroundColor: "#2563eb"
+          });
+        }
+
+        if (plot.reverse.length > 0) {
+          datasets.push({
+            label: "Reverse",
+            data: plot.reverse,
+            showLine: true,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            borderWidth: 2,
+            borderColor: "#dc2626",
+            backgroundColor: "#dc2626"
+          });
+        }
+
+        const canvas = document.getElementById("jvChart");
+
+        if (!canvas)
+          return;
+
+        new Chart(canvas, {
+          type: "scatter",
+
+          data: {
+            datasets
+          },
+
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            animation: false,
+
+            interaction: {
+              mode: "nearest",
+              intersect: false
+            },
+
+            scales: {
+              x: {
+                type: "linear",
+                title: {
+                  display: true,
+                  text: "Voltage (V)"
+                }
+              },
+
+              y: {
+                title: {
+                  display: true,
+                  text: "Current density (mA/cm²)"
+                }
+              }
+            },
+
+            plugins: {
+              legend: {
+                display: datasets.length > 1
+              },
+
+              tooltip: {
+                callbacks: {
+                  label(context) {
+                    const point = context.raw;
+
+                    return `${context.dataset.label}: ${point.x.toFixed(4)} V, ${point.y.toFixed(3)} mA/cm²`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      })();
+    </script>
+  }
+}

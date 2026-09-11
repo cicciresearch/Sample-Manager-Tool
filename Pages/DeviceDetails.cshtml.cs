@@ -1,6 +1,8 @@
 using Cicci.SampleManager.Data;
 using Cicci.SampleManager.Helpers;
 using Cicci.SampleManager.Models;
+using Cicci.SampleManager.Models.Plotting;
+using Cicci.SampleManager.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.StaticFiles;
@@ -40,6 +42,10 @@ public class DeviceDetailsModel : PageModel
     public int CurrentPage { get; set; } = 1;
     public int PageCount { get; set; } = 1;
     public int PageSize => HistoryPageSize;
+
+    public JvPlotData? JvPlot { get; set; }
+
+    
 
     // Loads device metadata, measurement summaries and one page of history.
     public async Task<IActionResult> OnGetAsync(
@@ -144,8 +150,13 @@ public class DeviceDetailsModel : PageModel
         else
         {
             // By default, display the newest measurement visible on this page.
-            SelectedMeasurement =
-                Measurements.FirstOrDefault();
+            SelectedMeasurement = Measurements.FirstOrDefault();
+        }
+
+        if (SelectedMeasurement?.Type == MeasurementType.JV &&
+            !string.IsNullOrWhiteSpace(SelectedMeasurement.DataPath))
+        {
+            JvPlot = await JvDataFileReader.ReadAsync(SelectedMeasurement.DataPath);
         }
 
         return Page();
