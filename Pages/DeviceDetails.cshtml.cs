@@ -66,6 +66,30 @@ public class DeviceDetailsModel : PageModel
         return Page();
     }
 
+    // Permanently deletes one measurement belonging to this pixel.
+    // Type-specific data such as JV or EQE is removed automatically
+    // by the cascade-delete relationships configured in EF Core.
+    public async Task<IActionResult> OnPostDeleteMeasurementAsync(
+        Guid id,
+        Guid measurementId)
+    {
+        var measurement = await _database.Measurements
+            .FirstOrDefaultAsync(measurement =>
+                measurement.Id == measurementId &&
+                measurement.DeviceId == id);
+
+        if (measurement == null)
+            return NotFound();
+
+        _database.Measurements.Remove(measurement);
+
+        await _database.SaveChangesAsync();
+
+        // Return to the same pixel. The newest remaining measurement
+        // will automatically be selected by OnGetAsync().
+        return RedirectToPage(new { id });
+    }
+
     // Opens the data file belonging to one measurement.
     public async Task<IActionResult> OnGetDataFileAsync(
         Guid id,

@@ -1153,12 +1153,23 @@ body {
 
 .measurement-history-row {
     display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: stretch;
+    border-bottom: 1px solid #edf0f2;
+}
+
+.measurement-history-link {
+    display: grid;
     grid-template-columns: 130px 80px minmax(0, 1fr) 20px;
     align-items: center;
     gap: 16px;
-    padding: 0px 22px;
-    height: 50px;
-    border-bottom: 1px solid #edf0f2;
+    min-width: 0;
+    padding: 14px 22px;
+    color: #20252b;
+    text-decoration: none;
+}
+
+.measurement-history-link:hover {
     color: #20252b;
     text-decoration: none;
 }
@@ -1175,6 +1186,29 @@ body {
 .measurement-history-row.selected {
     background: #f4f5f6;
     box-shadow: inset 3px 0 0 #20252b;
+}
+
+.measurement-delete-form {
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    border-left: 1px solid #edf0f2;
+}
+
+.measurement-delete-button {
+    padding: 6px 10px;
+    border: 1px solid #d9dde1;
+    border-radius: 6px;
+    background: transparent;
+    color: #8a4a4a;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.measurement-delete-button:hover {
+    background: #f8eeee;
+    border-color: #d7bcbc;
 }
 
 .measurement-history-time {
@@ -1378,6 +1412,10 @@ body {
 
 @media (max-width: 650px) {
     .measurement-history-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .measurement-history-link {
         grid-template-columns: 95px 55px minmax(0, 1fr);
         gap: 10px;
         padding: 13px 15px;
@@ -1385,6 +1423,14 @@ body {
 
     .measurement-open {
         display: none;
+    }
+
+    .measurement-delete-form {
+        padding: 0 10px;
+    }
+
+    .measurement-delete-button {
+        padding: 6px 8px;
     }
 
     .measurement-primary-results,

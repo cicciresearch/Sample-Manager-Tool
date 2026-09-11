@@ -47,20 +47,46 @@
         @foreach (var measurement in Model.Measurements)
         {
           var isSelected = selected?.Id == measurement.Id;
-          <a asp-page="/DeviceDetails" asp-route-id="@Model.Device.Id" asp-route-measurementId="@measurement.Id"
-             class="measurement-history-row @(isSelected ? "selected" : "")">
-            <div class="measurement-history-time">
-              <strong>@measurement.MeasuredAt.ToLocalTime().ToString("dd/MM/yyyy")</strong>
-              <span>@measurement.MeasuredAt.ToLocalTime().ToString("HH:mm:ss")</span>
-            </div>
-            <span class="measurement-type">
-              @measurement.Type
-            </span>
-            <strong class="measurement-highlight">
-              @Model.GetMeasurementHighlight(measurement)
-            </strong>
-            <span class="measurement-open">›</span>
-          </a>
+
+          <div class="measurement-history-row @(isSelected ? "selected" : "")">
+            <a asp-page="/DeviceDetails"
+              asp-route-id="@Model.Device.Id"
+              asp-route-measurementId="@measurement.Id"
+              class="measurement-history-link">
+
+              <div class="measurement-history-time">
+                <strong>@measurement.MeasuredAt.ToLocalTime().ToString("dd/MM/yyyy")</strong>
+                <span>@measurement.MeasuredAt.ToLocalTime().ToString("HH:mm:ss")</span>
+              </div>
+
+              <span class="measurement-type">
+                @measurement.Type
+              </span>
+
+              <strong class="measurement-highlight">
+                @Model.GetMeasurementHighlight(measurement)
+              </strong>
+
+              <span class="measurement-open">›</span>
+            </a>
+
+            <form method="post"
+                  asp-page-handler="DeleteMeasurement"
+                  asp-route-id="@Model.Device.Id"
+                  class="measurement-delete-form"
+                  onsubmit="return confirm('Permanently delete this measurement from the Sample Manager database?');">
+
+              <input type="hidden"
+                    name="measurementId"
+                    value="@measurement.Id" />
+
+              <button type="submit"
+                      class="measurement-delete-button"
+                      title="Delete measurement">
+                Delete
+              </button>
+            </form>
+          </div>
         }
       </div>
     }
