@@ -262,60 +262,70 @@ A malformed batch GUID does not match the `{id:guid}` route and will not be hand
 
 ---
 
-## GET `/devices?userId={userId}`
+## GET `/devices?batchID={batchId}`
 
-Returns a lightweight list of all devices/pixels belonging to batches owned by one enabled user.
+Returns a lightweight list of all devices/pixels belonging to one selected batch.
 
-This endpoint is currently intended for selector/dropdown use.
+The user does not need to be supplied separately because the selected batch already belongs to one research user.
 
 ### Query input
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `userId` | GUID | Yes | Research user identifier |
+| `batchID` | GUID | Yes | Selected batch identifier |
 
 Example:
 
 ```http
-GET /api/v1/devices?userId=04f40589-a621-4cb6-aa22-12a61d2289cb
+GET /api/v1/devices?batchID=47d13af8-e28a-42bf-a091-a889f76bbab9
 ```
 
 ### `200 OK`
+
+Each device contains its stable Device GUID and a display name made from the substrate code and pixel name.
 
 ```json
 [
   {
     "id": "cdf5bade-a41d-4653-9013-dca78c491a56",
-    "label": "B2026-001 - S01 - P1"
+    "name": "S01 - P1"
   },
   {
     "id": "54b55b20-b716-47b6-a11a-d51960b38542",
-    "label": "B2026-001 - S01 - P2"
+    "name": "S01 - P2"
+  },
+  {
+    "id": "631248cf-b65f-4268-9787-35ddd7344e39",
+    "name": "S02 - P1"
   }
 ]
 ```
 
-If the enabled user has no devices:
+Including the substrate code in `name` prevents ambiguity when different substrates contain pixels with the same name, for example `P1`.
+
+If the batch exists but contains no devices:
 
 ```json
 []
 ```
 
-### `400 Bad Request` — missing `userId`
+### `400 Bad Request` — missing `batchID`
 
 ```json
 {
-  "error": "userId is required."
+  "error": "batchID is required."
 }
 ```
 
-### `404 Not Found` — user missing or disabled
+### `404 Not Found` — batch does not exist
 
 ```json
 {
-  "error": "Active user not found."
+  "error": "Batch not found."
 }
 ```
+
+A malformed GUID may instead produce an automatic ASP.NET Core model-binding `400` response.
 
 ---
 
@@ -402,8 +412,9 @@ Nullable batch metadata can appear as `null`, for example:
   -> substrates
       -> devices/pixels
 
-/devices?userId=...
-  -> lightweight device list with display label
+/devices?batchID=...
+  -> lightweight device list for one selected batch
+  -> id + "SampleCode - Pixel"
 
 /devices/{id}
   -> device metadata + batch/sample context + flattened stack materials
