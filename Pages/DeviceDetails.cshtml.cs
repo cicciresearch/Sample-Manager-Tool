@@ -46,7 +46,7 @@ public class DeviceDetailsModel : PageModel
         Guid id,
         Guid? measurementId,
         MeasurementType? type,
-        int page = 1)
+        int historyPage = 1)
     {
         // Device metadata is loaded separately from measurements so opening
         // this page never loads the complete measurement history.
@@ -109,7 +109,7 @@ public class DeviceDetailsModel : PageModel
         );
 
         CurrentPage = Math.Clamp(
-            page,
+            historyPage,
             1,
             PageCount
         );
@@ -177,12 +177,11 @@ public class DeviceDetailsModel : PageModel
     }
 
     // Permanently deletes one measurement belonging to this pixel.
-    // Type-specific data is removed by the configured cascade delete.
     public async Task<IActionResult> OnPostDeleteMeasurementAsync(
         Guid id,
         Guid measurementId,
         MeasurementType? type,
-        int page = 1)
+        int historyPage = 1)
     {
         var measurement = await _database.Measurements
             .FirstOrDefaultAsync(measurement =>
@@ -196,13 +195,16 @@ public class DeviceDetailsModel : PageModel
 
         await _database.SaveChangesAsync();
 
-        // Preserve the current history filter and page after deletion.
-        return RedirectToPage(new
-        {
-            id,
-            type,
-            page
-        });
+        // Redirect explicitly back to DeviceDetails.
+        return RedirectToPage(
+            "/DeviceDetails",
+            new
+            {
+                id,
+                type,
+                historyPage
+            }
+        );
     }
 
     // Opens the data file belonging to one measurement.

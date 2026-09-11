@@ -118,7 +118,7 @@
             <a asp-page="/DeviceDetails"
               asp-route-id="@Model.Device.Id"
               asp-route-type="@Model.SelectedType"
-              asp-route-page="@Model.CurrentPage"
+              asp-route-historyPage="@Model.CurrentPage"
               asp-route-measurementId="@measurement.Id"
               class="measurement-history-link">
 
@@ -142,7 +142,7 @@
                   asp-page-handler="DeleteMeasurement"
                   asp-route-id="@Model.Device.Id"
                   asp-route-type="@Model.SelectedType"
-                  asp-route-page="@Model.CurrentPage"
+                  asp-route-historyPage="@Model.CurrentPage"
                   class="measurement-delete-form"
                   onsubmit="return confirm('Permanently delete this measurement from the Sample Manager database?');">
 
@@ -182,7 +182,7 @@
               <a asp-page="/DeviceDetails"
                 asp-route-id="@Model.Device.Id"
                 asp-route-type="@Model.SelectedType"
-                asp-route-page="@(Model.CurrentPage - 1)"
+                asp-route-historyPage="@(Model.CurrentPage - 1)"
                 class="measurement-page-button">
                 ← Previous
               </a>
@@ -203,7 +203,7 @@
               <a asp-page="/DeviceDetails"
                 asp-route-id="@Model.Device.Id"
                 asp-route-type="@Model.SelectedType"
-                asp-route-page="@(Model.CurrentPage + 1)"
+                asp-route-historyPage="@(Model.CurrentPage + 1)"
                 class="measurement-page-button">
                 Next →
               </a>
