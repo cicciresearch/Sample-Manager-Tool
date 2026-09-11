@@ -203,51 +203,44 @@ public class SampleManagerApiController : ControllerBase
         return Ok(batch);
     }
 
-    // Returns the lightweight device list used to populate the LabVIEW dropdown.
+    // Returns the lightweight device list for one selected batch.
+    // Since a batch already belongs to one user, no separate userId is needed.
     [HttpGet("devices")]
-    public async Task<IActionResult> GetDevicesAsync([FromQuery] Guid? userId)
+    public async Task<IActionResult> GetDevicesAsync(
+        [FromQuery(Name = "batchID")] Guid? batchId)
     {
-        if (!userId.HasValue)
+        if (!batchId.HasValue)
         {
             return BadRequest(new
             {
-                error = "userId is required."
+                error = "batchID is required."
             });
         }
 
-        var userExists = await _database.ResearchUsers
+        var batchExists = await _database.Batches
             .AsNoTracking()
-            .AnyAsync(user =>
-                user.Id == userId.Value &&
-                user.IsEnabled);
+            .AnyAsync(batch => batch.Id == batchId.Value);
 
-        if (!userExists)
+        if (!batchExists)
         {
             return NotFound(new
             {
-                error = "Active user not found."
+                error = "Batch not found."
             });
         }
 
-        // We project directly to the small JSON structure LabVIEW needs
-        // instead of returning the EF database entities themselves.
+        // The batch is already selected, so the display name only needs
+        // the substrate code and pixel name to remain unique within that batch.
         var devices = await _database.Devices
             .AsNoTracking()
             .Where(device =>
-                device.Sample.Batch.UserId == userId.Value)
-            .OrderByDescending(device =>
-                device.Sample.Batch.ProductionDate)
-            .ThenBy(device =>
-                device.Sample.Batch.Code)
-            .ThenBy(device =>
-                device.Sample.Code)
-            .ThenBy(device =>
-                device.Pixel)
+                device.Sample.BatchId == batchId.Value)
+            .OrderBy(device => device.Sample.Code)
+            .ThenBy(device => device.Pixel)
             .Select(device => new
             {
                 id = device.Id,
-                label =
-                    device.Sample.Batch.Code + " - " +
+                name =
                     device.Sample.Code + " - " +
                     device.Pixel
             })
