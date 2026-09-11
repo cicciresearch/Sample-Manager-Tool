@@ -93,8 +93,7 @@ public class DeviceDetailsModel : PageModel
 
         return PhysicalFile(
             dataPath,
-            contentType,
-            enableRangeProcessing: true);
+            contentType);
     }
 
     // Returns the small result highlighted in the measurement history.

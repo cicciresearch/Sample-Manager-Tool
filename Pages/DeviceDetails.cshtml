@@ -84,31 +84,32 @@
           <div class="measurement-common-row">
             <span>Measured</span>
             <strong>
-              @selected.MeasuredAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+              @selected.MeasuredAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")
             </strong>
           </div>
 
           <div class="measurement-common-row">
-            <span>Data path</span>
-            @if (!string.IsNullOrWhiteSpace(selected.DataPath))
-            {
-              <div>
-                <code class="measurement-path">@selected.DataPath</code>
-                <a asp-page="/DeviceDetails"
-                   asp-page-handler="DataFile"
-                   asp-route-id="@Model.Device.Id"
-                   asp-route-measurementId="@selected.Id"
-                   target="_blank"
-                   rel="noopener"
-                   class="edit-button">
-                  Open data file ↗
-                </a>
+          <span>Data file</span>
+          @if (!string.IsNullOrWhiteSpace(selected.DataPath))
+          {
+              <div class="measurement-data-file">
+              <code class="measurement-path"
+                      title="@selected.DataPath">@selected.DataPath</code>
+              <a asp-page="/DeviceDetails"
+                  asp-page-handler="DataFile"
+                  asp-route-id="@Model.Device.Id"
+                  asp-route-measurementId="@selected.Id"
+                  target="_blank"
+                  rel="noopener"
+                  class="measurement-file-button">
+                  Open ↗
+              </a>
               </div>
-            }
-            else
-            {
+          }
+          else
+          {
               <strong>—</strong>
-            }
+          }
           </div>
 
           <div class="measurement-common-row">

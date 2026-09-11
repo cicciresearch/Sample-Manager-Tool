@@ -1280,10 +1280,42 @@ body {
     font-weight: 600;
 }
 
+.measurement-data-file {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+}
+
 .measurement-path {
-    overflow-wrap: anywhere;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     color: #5d6670;
     font-size: 0.74rem;
+}
+
+.measurement-file-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    padding: 0 11px;
+    border: 1px solid #d7dce0;
+    border-radius: 7px;
+    background: white;
+    color: #454c54;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.measurement-file-button:hover {
+    background: #f5f6f7;
+    border-color: #c9ced3;
+    color: #20252b;
 }
 
 .measurement-notes {
