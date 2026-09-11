@@ -223,210 +223,228 @@
 
   @if (selected != null)
   {
-    <div class="measurement-detail-grid">
-      <div class="measurement-detail-card">
-        <div class="measurement-card-header">
-          <div>
-            <div class="eyebrow">COMMON</div>
-            <h2>Measurement</h2>
+    <div class="measurement-result-layout @(selected.Type == MeasurementType.JV ? "has-plot" : "")">
+      <div class="measurement-result-details">
+        <div class="measurement-detail-card">
+          <div class="measurement-card-header">
+            <div>
+              <div class="eyebrow">COMMON</div>
+              <h2>Measurement</h2>
+            </div>
+
+            <span class="measurement-type">
+              @selected.Type
+            </span>
           </div>
-          <span class="measurement-type">
-            @selected.Type
-          </span>
+
+          <div class="measurement-common-list">
+            <div class="measurement-common-row">
+              <span>Measured</span>
+              <strong>
+                @selected.MeasuredAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")
+              </strong>
+            </div>
+
+            <div class="measurement-common-row">
+              <span>Data file</span>
+
+              @if (!string.IsNullOrWhiteSpace(selected.DataPath))
+              {
+                <div class="measurement-data-file">
+                  <code class="measurement-path"
+                        title="@selected.DataPath">
+                    @selected.DataPath
+                  </code>
+
+                  <a asp-page="/DeviceDetails"
+                    asp-page-handler="DataFile"
+                    asp-route-id="@Model.Device.Id"
+                    asp-route-measurementId="@selected.Id"
+                    target="_blank"
+                    rel="noopener"
+                    class="measurement-file-button">
+                    Open ↗
+                  </a>
+                </div>
+              }
+              else
+              {
+                <strong>—</strong>
+              }
+            </div>
+
+            <div class="measurement-common-row">
+              <span>Notes</span>
+
+              @if (!string.IsNullOrWhiteSpace(selected.Notes))
+              {
+                <div class="measurement-notes">
+                  @selected.Notes
+                </div>
+              }
+              else
+              {
+                <strong>—</strong>
+              }
+            </div>
+          </div>
         </div>
 
-        <div class="measurement-common-list">
-          <div class="measurement-common-row">
-            <span>Measured</span>
-            <strong>
-              @selected.MeasuredAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")
-            </strong>
-          </div>
-
-          <div class="measurement-common-row">
-          <span>Data file</span>
-          @if (!string.IsNullOrWhiteSpace(selected.DataPath))
+        <div class="measurement-detail-card">
+          @if (selected.Type == MeasurementType.JV && selected.Jv != null)
           {
-              <div class="measurement-data-file">
-              <code class="measurement-path"
-                      title="@selected.DataPath">@selected.DataPath</code>
-              <a asp-page="/DeviceDetails"
-                  asp-page-handler="DataFile"
-                  asp-route-id="@Model.Device.Id"
-                  asp-route-measurementId="@selected.Id"
-                  target="_blank"
-                  rel="noopener"
-                  class="measurement-file-button">
-                  Open ↗
-              </a>
+            <div class="measurement-card-header">
+              <div>
+                <div class="eyebrow">SPECIFIC</div>
+                <h2>JV results</h2>
               </div>
+            </div>
+
+            <div class="measurement-primary-results">
+              <div class="measurement-result">
+                <strong>
+                  @Model.FormatValue(
+                    selected.Jv.EfficiencyPercent,
+                    "%")
+                </strong>
+                <span>Efficiency</span>
+              </div>
+
+              <div class="measurement-result">
+                <strong>
+                  @Model.FormatValue(
+                    selected.Jv.VocV,
+                    "V",
+                    "0.###")
+                </strong>
+                <span>Voc</span>
+              </div>
+
+              <div class="measurement-result">
+                <strong>
+                  @Model.FormatValue(
+                    selected.Jv.JscMilliampPerCm2,
+                    "mA/cm²")
+                </strong>
+                <span>Jsc</span>
+              </div>
+
+              <div class="measurement-result">
+                <strong>
+                  @Model.FormatValue(
+                    selected.Jv.FillFactorPercent,
+                    "%")
+                </strong>
+                <span>Fill factor</span>
+              </div>
+            </div>
+
+            <div class="measurement-secondary-results">
+              <div class="measurement-result secondary">
+                <strong>
+                  @Model.FormatValue(
+                    selected.Jv.VmppV,
+                    "V",
+                    "0.###")
+                </strong>
+                <span>Vmpp</span>
+              </div>
+
+              <div class="measurement-result secondary">
+                <strong>
+                  @Model.FormatValue(
+                    selected.Jv.JmppMilliampPerCm2,
+                    "mA/cm²")
+                </strong>
+                <span>Jmpp</span>
+              </div>
+
+              <div class="measurement-result secondary">
+                <strong>
+                  @Model.FormatValue(
+                    selected.Jv.PmppMilliwattPerCm2,
+                    "mW/cm²")
+                </strong>
+                <span>Pmpp</span>
+              </div>
+            </div>
+          }
+          else if (selected.Type == MeasurementType.EQE && selected.Eqe != null)
+          {
+            <div class="measurement-card-header">
+              <div>
+                <div class="eyebrow">SPECIFIC</div>
+                <h2>EQE results</h2>
+              </div>
+            </div>
+
+            <div class="measurement-primary-results">
+              <div class="measurement-result">
+                <strong>
+                  @Model.FormatValue(
+                    selected.Eqe.Jsc,
+                    "mA/cm²")
+                </strong>
+                <span>Integrated Jsc</span>
+              </div>
+
+              <div class="measurement-result">
+                <strong>
+                  @Model.FormatValue(
+                    selected.Eqe.PeakEQE,
+                    "%")
+                </strong>
+                <span>Peak EQE</span>
+              </div>
+            </div>
           }
           else
           {
-              <strong>—</strong>
+            <div class="measurement-card-header">
+              <div>
+                <div class="eyebrow">SPECIFIC</div>
+                <h2>@selected.Type results</h2>
+              </div>
+            </div>
+
+            <div class="measurement-empty">
+              No specific results are available for this measurement.
+            </div>
           }
-          </div>
-
-          <div class="measurement-common-row">
-            <span>Notes</span>
-            @if (!string.IsNullOrWhiteSpace(selected.Notes))
-            {
-              <div class="measurement-notes">@selected.Notes</div>
-            }
-            else
-            {
-              <strong>—</strong>
-            }
-          </div>
         </div>
       </div>
 
-      <div class="measurement-detail-card">
-        @if (selected.Type == MeasurementType.JV && selected.Jv != null)
-        {
+      @if (selected.Type == MeasurementType.JV && Model.JvPlot != null)
+      {
+        <div class="measurement-plot-card">
           <div class="measurement-card-header">
             <div>
-              <div class="eyebrow">SPECIFIC</div>
-              <h2>JV results</h2>
+              <div class="eyebrow">RAW DATA</div>
+              <h2>JV curve</h2>
             </div>
           </div>
 
-          <div class="measurement-primary-results">
-            <div class="measurement-result">
-              <strong>
-                @Model.FormatValue(
-                  selected.Jv.EfficiencyPercent,
-                  "%")
-              </strong>
-              <span>Efficiency</span>
+          @if (Model.JvPlot.HasData)
+          {
+            <div class="jv-chart-container">
+              <canvas id="jvChart"></canvas>
             </div>
-            <div class="measurement-result">
-              <strong>
-                @Model.FormatValue(
-                  selected.Jv.VocV,
-                  "V",
-                  "0.###")
-              </strong>
-              <span>Voc</span>
-            </div>
-            <div class="measurement-result">
-              <strong>
-                @Model.FormatValue(
-                  selected.Jv.JscMilliampPerCm2,
-                  "mA/cm²")
-              </strong>
-              <span>Jsc</span>
-            </div>
-            <div class="measurement-result">
-              <strong>
-                @Model.FormatValue(
-                  selected.Jv.FillFactorPercent,
-                  "%")
-              </strong>
-              <span>Fill factor</span>
-            </div>
-          </div>
+          }
+          else
+          {
+            <div class="measurement-empty">
+              Plot unavailable.
 
-          <div class="measurement-secondary-results">
-            <div class="measurement-result secondary">
-              <strong>
-                @Model.FormatValue(
-                  selected.Jv.VmppV,
-                  "V",
-                  "0.###")
-              </strong>
-              <span>Vmpp</span>
+              @if (!string.IsNullOrWhiteSpace(Model.JvPlot.Error))
+              {
+                <span>@Model.JvPlot.Error</span>
+              }
             </div>
-            <div class="measurement-result secondary">
-              <strong>
-                @Model.FormatValue(
-                  selected.Jv.JmppMilliampPerCm2,
-                  "mA/cm²")
-              </strong>
-              <span>Jmpp</span>
-            </div>
-            <div class="measurement-result secondary">
-              <strong>
-                @Model.FormatValue(
-                  selected.Jv.PmppMilliwattPerCm2,
-                  "mW/cm²")
-              </strong>
-              <span>Pmpp</span>
-            </div>
-          </div>
-        }
-        else if (selected.Type == MeasurementType.EQE && selected.Eqe != null)
-        {
-          <div class="measurement-card-header">
-            <div>
-              <div class="eyebrow">SPECIFIC</div>
-              <h2>EQE results</h2>
-            </div>
-          </div>
-
-          <div class="measurement-primary-results">
-            <div class="measurement-result">
-              <strong>
-                @Model.FormatValue(
-                  selected.Eqe.Jsc,
-                  "mA/cm²")
-              </strong>
-              <span>Integrated Jsc</span>
-            </div>
-            <div class="measurement-result">
-              <strong>
-                @Model.FormatValue(
-                  selected.Eqe.PeakEQE,
-                  "%")
-              </strong>
-              <span>Peak EQE</span>
-            </div>
-          </div>
-        }
-        else
-        {
-          <div class="measurement-card-header">
-            <div>
-              <div class="eyebrow">SPECIFIC</div>
-              <h2>@selected.Type results</h2>
-            </div>
-          </div>
-          <div class="measurement-empty">
-            No specific results are available for this measurement.
-          </div>
-        }
-      </div>
+          }
+        </div>
+      }
     </div>
-
-    @if (selected.Type == MeasurementType.JV && Model.JvPlot != null)
-    {
-      <div class="measurement-plot-card">
-        <div class="measurement-card-header">
-          <div>
-            <div class="eyebrow">RAW DATA</div>
-            <h2>JV curve</h2>
-          </div>
-        </div>
-
-        @if (Model.JvPlot.HasData)
-        {
-          <div class="jv-chart-container">
-            <canvas id="jvChart"></canvas>
-          </div>
-        }
-        else
-        {
-          <div class="measurement-empty">
-            Plot unavailable.
-            @if (!string.IsNullOrWhiteSpace(Model.JvPlot.Error))
-            {
-              <span>@Model.JvPlot.Error</span>
-            }
-          </div>
-        }
-      </div>
     }
-  }
 </div>
 
 @section Scripts {

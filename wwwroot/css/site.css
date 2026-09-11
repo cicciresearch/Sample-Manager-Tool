@@ -1869,3 +1869,52 @@ body {
         padding: 10px;
     }
 }
+
+/* ---------------------------------------------------------
+   Selected measurement layout
+--------------------------------------------------------- */
+
+.measurement-result-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.measurement-result-layout.has-plot {
+    grid-template-columns: minmax(300px, 0.8fr) minmax(420px, 1.2fr);
+    align-items: start;
+}
+
+.measurement-result-details {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
+}
+
+.measurement-plot-card {
+    min-width: 0;
+    border: 1px solid #e3e6e9;
+    border-radius: 9px;
+    background: white;
+    overflow: hidden;
+}
+
+.jv-chart-container {
+    position: relative;
+    width: 100%;
+    /* aspect-ratio: 1 / 1; */
+    padding: 12px 18px 18px;
+}
+
+@media (max-width: 900px) {
+    .measurement-result-layout.has-plot {
+        grid-template-columns: 1fr;
+    }
+
+    .jv-chart-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
