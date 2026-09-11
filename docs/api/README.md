@@ -44,7 +44,7 @@ Responses are JSON.
 | GET | `/api/v1/users` | List enabled research users |
 | GET | `/api/v1/batches?userId={userId}` | List batches belonging to an enabled user |
 | GET | `/api/v1/batches/{id}` | Get complete batch metadata and substrate/pixel structure |
-| GET | `/api/v1/devices?userId={userId}` | List devices/pixels belonging to an enabled user |
+| GET | `/api/v1/devices?batchID={batchId}` | List devices/pixels belonging to one selected batch |
 | GET | `/api/v1/devices/{id}` | Get metadata for one device/pixel |
 | POST | `/api/v1/users` | Create a research user |
 | POST | `/api/v1/devices/{deviceId}/measurements/jv` | Store a JV measurement |
@@ -172,6 +172,14 @@ The API currently keeps the existing public JSON naming:
 - batch collections contain `substrates`
 - each substrate contains `devices`
 - each device exposes its `pixel` name
+
+The lightweight device selector endpoint is batch-scoped:
+
+```text
+/devices?batchID={batchId}
+```
+
+Because the batch already identifies its owning user, no `userId` is required for this endpoint.
 
 ## Measurements
 
