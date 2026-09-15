@@ -1,7 +1,6 @@
 using System.Globalization;
-using Cicci.SampleManager.Models.Plotting;
 
-namespace Cicci.SampleManager.Services;
+namespace Cicci.SampleManager.Measurements.JV;
 
 public static class JvDataFileReader
 {

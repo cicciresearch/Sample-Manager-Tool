@@ -1,6 +1,7 @@
 using Cicci.SampleManager.Data;
 using Cicci.SampleManager.Helpers;
 using Cicci.SampleManager.Models;
+using Cicci.SampleManager.Measurements.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -32,16 +33,15 @@ public class SampleDetailsModel : PageModel
             .AsNoTracking()
             .Include(sample => sample.Batch)
             .Include(sample => sample.Devices)
-                .ThenInclude(device => device.Measurements)
-                    .ThenInclude(measurement => measurement.Jv)
-            .Include(sample => sample.Devices)
-                .ThenInclude(device => device.Measurements)
-                    .ThenInclude(measurement => measurement.Eqe)
-            .AsSplitQuery()
-            .FirstOrDefaultAsync(sample => sample.Id == id);
+            .FirstOrDefaultAsync(sample =>
+                sample.Id == id);
 
         if (sample == null)
             return NotFound();
+            
+        await MeasurementLoader.LoadForDevicesAsync(
+            _database,
+            sample.Devices);
 
         Sample = sample;
 

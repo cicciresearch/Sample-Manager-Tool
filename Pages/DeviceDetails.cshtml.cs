@@ -1,8 +1,7 @@
 using Cicci.SampleManager.Data;
 using Cicci.SampleManager.Helpers;
 using Cicci.SampleManager.Models;
-using Cicci.SampleManager.Models.Plotting;
-using Cicci.SampleManager.Services;
+using Cicci.SampleManager.Measurements.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.StaticFiles;
@@ -33,7 +32,8 @@ public class DeviceDetailsModel : PageModel
     public List<MeasurementTypeCount> MeasurementTypeCounts { get; set; } = [];
 
     public Measurement? SelectedMeasurement { get; set; }
-
+    public MeasurementPresentation? SelectedPresentation { get; set; }
+    public IReadOnlyList<MeasurementPlot> SelectedPlots { get; set; } = [];
     public MeasurementType? SelectedType { get; set; }
 
     public int TotalMeasurementCount { get; set; }
@@ -42,10 +42,6 @@ public class DeviceDetailsModel : PageModel
     public int CurrentPage { get; set; } = 1;
     public int PageCount { get; set; } = 1;
     public int PageSize => HistoryPageSize;
-
-    public JvPlotData? JvPlot { get; set; }
-
-    
 
     // Loads device metadata, measurement summaries and one page of history.
     public async Task<IActionResult> OnGetAsync(
@@ -120,10 +116,12 @@ public class DeviceDetailsModel : PageModel
             PageCount
         );
 
+        historyQuery =
+            MeasurementLoader.IncludeDetails(
+                historyQuery);
+
         // Only one page of measurement history is loaded from SQLite.
         Measurements = await historyQuery
-            .Include(measurement => measurement.Jv)
-            .Include(measurement => measurement.Eqe)
             .OrderByDescending(measurement =>
                 measurement.MeasuredAt)
             .ThenByDescending(measurement =>
@@ -136,13 +134,16 @@ public class DeviceDetailsModel : PageModel
         {
             // The selected measurement is loaded independently of the current
             // history page. This also allows direct links to old measurements.
-            SelectedMeasurement = await _database.Measurements
-                .AsNoTracking()
-                .Include(measurement => measurement.Jv)
-                .Include(measurement => measurement.Eqe)
-                .FirstOrDefaultAsync(measurement =>
-                    measurement.Id == measurementId.Value &&
-                    measurement.DeviceId == id);
+            var selectedQuery =
+                MeasurementLoader.IncludeDetails(
+                    _database.Measurements
+                        .AsNoTracking());
+
+            SelectedMeasurement =
+                await selectedQuery
+                    .FirstOrDefaultAsync(measurement =>
+                        measurement.Id == measurementId.Value &&
+                        measurement.DeviceId == id);
 
             if (SelectedMeasurement == null)
                 return NotFound();
@@ -153,10 +154,22 @@ public class DeviceDetailsModel : PageModel
             SelectedMeasurement = Measurements.FirstOrDefault();
         }
 
-        if (SelectedMeasurement?.Type == MeasurementType.JV &&
-            !string.IsNullOrWhiteSpace(SelectedMeasurement.DataPath))
+        if (SelectedMeasurement != null)
         {
-            JvPlot = await JvDataFileReader.ReadAsync(SelectedMeasurement.DataPath);
+            var definition =
+                MeasurementRegistry.Get(
+                    SelectedMeasurement.Type);
+
+            if (definition != null)
+            {
+                SelectedPresentation =
+                    definition.GetPresentation(
+                        SelectedMeasurement);
+
+                SelectedPlots =
+                    await definition.LoadPlotsAsync(
+                        SelectedMeasurement);
+            }
         }
 
         return Page();
@@ -169,10 +182,12 @@ public class DeviceDetailsModel : PageModel
         {
             // The number of measurement types is small, so one lightweight
             // query per type avoids loading hundreds of historical records.
-            var latest = await _database.Measurements
-                .AsNoTracking()
-                .Include(measurement => measurement.Jv)
-                .Include(measurement => measurement.Eqe)
+            var query =
+                MeasurementLoader.IncludeDetails(
+                    _database.Measurements
+                        .AsNoTracking());
+
+            var latest = await query
                 .Where(measurement =>
                     measurement.DeviceId == deviceId &&
                     measurement.Type == typeCount.Type)

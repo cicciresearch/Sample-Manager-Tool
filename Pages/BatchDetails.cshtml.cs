@@ -1,6 +1,7 @@
 using Cicci.SampleManager.Data;
 using Cicci.SampleManager.Models;
 using Cicci.SampleManager.Helpers;
+using Cicci.SampleManager.Measurements.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -41,19 +42,22 @@ public class BatchDetailsModel : PageModel
             .Include(batch => batch.User)
             .Include(batch => batch.DeviceStack)
                 .ThenInclude(stack => stack!.Layers)
-        .Include(batch => batch.Samples)
-            .ThenInclude(sample => sample.Devices)
-                .ThenInclude(device => device.Measurements)
-                    .ThenInclude(measurement => measurement.Jv)
-        .Include(batch => batch.Samples)
-            .ThenInclude(sample => sample.Devices)
-                .ThenInclude(device => device.Measurements)
-                    .ThenInclude(measurement => measurement.Eqe)
+            .Include(batch => batch.Samples)
+                .ThenInclude(sample => sample.Devices)
             .AsSplitQuery()
-            .FirstOrDefaultAsync(batch => batch.Id == id);
+            .FirstOrDefaultAsync(batch =>
+                batch.Id == id);
 
         if (batch == null)
             return false;
+
+        var devices = batch.Samples
+            .SelectMany(sample => sample.Devices)
+            .ToList();
+
+        await MeasurementLoader.LoadForDevicesAsync(
+            _database,
+            devices);
 
         Batch = batch;
         MeasurementSummaries = MeasurementStatistics.GetBatchSummaries(batch);

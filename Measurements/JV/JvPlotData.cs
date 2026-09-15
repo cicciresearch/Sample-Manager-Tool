@@ -1,4 +1,4 @@
-namespace Cicci.SampleManager.Models.Plotting;
+namespace Cicci.SampleManager.Measurements.JV;
 
 public class JvPlotData
 {

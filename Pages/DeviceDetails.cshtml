@@ -41,12 +41,8 @@
       <div class="latest-measurement-grid">
         @foreach (var measurement in Model.LatestMeasurements)
         {
-          <a asp-page="/DeviceDetails"
-            asp-route-id="@Model.Device.Id"
-            asp-route-type="@measurement.Type"
-            asp-route-page="1"
-            asp-route-measurementId="@measurement.Id"
-            class="latest-measurement-card">
+          <a asp-page="/DeviceDetails" asp-route-id="@Model.Device.Id" asp-route-type="@measurement.Type" asp-route-page="1"
+             asp-route-measurementId="@measurement.Id" class="latest-measurement-card">
 
             <div class="latest-measurement-header">
               <span class="measurement-type">
@@ -76,19 +72,16 @@
     </div>
 
     <div class="measurement-filters">
-      <a asp-page="/DeviceDetails"
-        asp-route-id="@Model.Device.Id"
-        class="measurement-filter @(Model.SelectedType == null ? "selected" : "")">
+      <a asp-page="/DeviceDetails" asp-route-id="@Model.Device.Id"
+         class="measurement-filter @(Model.SelectedType == null ? "selected" : "")">
         All
         <span>@Model.TotalMeasurementCount</span>
       </a>
 
       @foreach (var typeCount in Model.MeasurementTypeCounts)
       {
-        <a asp-page="/DeviceDetails"
-          asp-route-id="@Model.Device.Id"
-          asp-route-type="@typeCount.Type"
-          class="measurement-filter @(Model.SelectedType == typeCount.Type ? "selected" : "")">
+        <a asp-page="/DeviceDetails" asp-route-id="@Model.Device.Id" asp-route-type="@typeCount.Type"
+           class="measurement-filter @(Model.SelectedType == typeCount.Type ? "selected" : "")">
           @typeCount.Type
           <span>@typeCount.Count</span>
         </a>
@@ -116,12 +109,9 @@
           var isSelected = selected?.Id == measurement.Id;
 
           <div class="measurement-history-row @(isSelected ? "selected" : "")">
-            <a asp-page="/DeviceDetails"
-              asp-route-id="@Model.Device.Id"
-              asp-route-type="@Model.SelectedType"
-              asp-route-historyPage="@Model.CurrentPage"
-              asp-route-measurementId="@measurement.Id"
-              class="measurement-history-link">
+            <a asp-page="/DeviceDetails" asp-route-id="@Model.Device.Id" asp-route-type="@Model.SelectedType"
+               asp-route-historyPage="@Model.CurrentPage" asp-route-measurementId="@measurement.Id"
+               class="measurement-history-link">
 
               <div class="measurement-history-time">
                 <strong>@measurement.MeasuredAt.ToLocalTime().ToString("dd/MM/yyyy")</strong>
@@ -139,21 +129,14 @@
               <span class="measurement-open">›</span>
             </a>
 
-            <form method="post"
-                  asp-page-handler="DeleteMeasurement"
-                  asp-route-id="@Model.Device.Id"
-                  asp-route-type="@Model.SelectedType"
-                  asp-route-historyPage="@Model.CurrentPage"
+            <form method="post" asp-page-handler="DeleteMeasurement" asp-route-id="@Model.Device.Id"
+                  asp-route-type="@Model.SelectedType" asp-route-historyPage="@Model.CurrentPage"
                   class="measurement-delete-form"
                   onsubmit="return confirm('Permanently delete this measurement from the Sample Manager database?');">
 
-              <input type="hidden"
-                    name="measurementId"
-                    value="@measurement.Id" />
+              <input type="hidden" name="measurementId" value="@measurement.Id" />
 
-              <button type="submit"
-                      class="measurement-delete-button"
-                      title="Delete measurement">
+              <button type="submit" class="measurement-delete-button" title="Delete measurement">
                 Delete
               </button>
             </form>
@@ -180,11 +163,8 @@
           <div class="measurement-pagination-controls">
             @if (Model.CurrentPage > 1)
             {
-              <a asp-page="/DeviceDetails"
-                asp-route-id="@Model.Device.Id"
-                asp-route-type="@Model.SelectedType"
-                asp-route-historyPage="@(Model.CurrentPage - 1)"
-                class="measurement-page-button">
+              <a asp-page="/DeviceDetails" asp-route-id="@Model.Device.Id" asp-route-type="@Model.SelectedType"
+                 asp-route-historyPage="@(Model.CurrentPage - 1)" class="measurement-page-button">
                 ← Previous
               </a>
             }
@@ -201,11 +181,8 @@
 
             @if (Model.CurrentPage < Model.PageCount)
             {
-              <a asp-page="/DeviceDetails"
-                asp-route-id="@Model.Device.Id"
-                asp-route-type="@Model.SelectedType"
-                asp-route-historyPage="@(Model.CurrentPage + 1)"
-                class="measurement-page-button">
+              <a asp-page="/DeviceDetails" asp-route-id="@Model.Device.Id" asp-route-type="@Model.SelectedType"
+                 asp-route-historyPage="@(Model.CurrentPage + 1)" class="measurement-page-button">
                 Next →
               </a>
             }
@@ -223,7 +200,7 @@
 
   @if (selected != null)
   {
-    <div class="measurement-result-layout @(selected.Type == MeasurementType.JV ? "has-plot" : "")">
+    <div class="measurement-result-layout @(Model.SelectedPlots.Count > 0 ? "has-plot" : "")">
       <div class="measurement-result-details">
         <div class="measurement-detail-card">
           <div class="measurement-card-header">
@@ -251,18 +228,12 @@
               @if (!string.IsNullOrWhiteSpace(selected.DataPath))
               {
                 <div class="measurement-data-file">
-                  <code class="measurement-path"
-                        title="@selected.DataPath">
+                  <code class="measurement-path" title="@selected.DataPath">
                     @selected.DataPath
                   </code>
 
-                  <a asp-page="/DeviceDetails"
-                    asp-page-handler="DataFile"
-                    asp-route-id="@Model.Device.Id"
-                    asp-route-measurementId="@selected.Id"
-                    target="_blank"
-                    rel="noopener"
-                    class="measurement-file-button">
+                  <a asp-page="/DeviceDetails" asp-page-handler="DataFile" asp-route-id="@Model.Device.Id"
+                     asp-route-measurementId="@selected.Id" target="_blank" rel="noopener" class="measurement-file-button">
                     Open ↗
                   </a>
                 </div>
@@ -291,83 +262,40 @@
         </div>
 
         <div class="measurement-detail-card">
-          @if (selected.Type == MeasurementType.JV && selected.Jv != null)
+          @if (Model.SelectedPresentation != null)
           {
             <div class="measurement-card-header">
               <div>
                 <div class="eyebrow">SPECIFIC</div>
-                <h2>JV results</h2>
+                <h2>@Model.SelectedPresentation.Title</h2>
               </div>
             </div>
 
-            <div class="measurement-primary-results">
-              <div class="measurement-result">
-                <strong>
-                  @Model.FormatValue(
-                    selected.Jv.EfficiencyPercent,
-                    "%")
-                </strong>
-                <span>Efficiency</span>
+            @if (Model.SelectedPresentation.PrimaryResults.Count > 0)
+            {
+              <div class="measurement-primary-results">
+                @foreach (var result in Model.SelectedPresentation.PrimaryResults)
+                {
+                  <div class="measurement-result">
+                    <strong>@result.Value</strong>
+                    <span>@result.Label</span>
+                  </div>
+                }
               </div>
+            }
 
-              <div class="measurement-result">
-                <strong>
-                  @Model.FormatValue(
-                    selected.Jv.VocV,
-                    "V",
-                    "0.###")
-                </strong>
-                <span>Voc</span>
+            @if (Model.SelectedPresentation.SecondaryResults.Count > 0)
+            {
+              <div class="measurement-secondary-results">
+                @foreach (var result in Model.SelectedPresentation.SecondaryResults)
+                {
+                  <div class="measurement-result secondary">
+                    <strong>@result.Value</strong>
+                    <span>@result.Label</span>
+                  </div>
+                }
               </div>
-
-              <div class="measurement-result">
-                <strong>
-                  @Model.FormatValue(
-                    selected.Jv.JscMilliampPerCm2,
-                    "mA/cm²")
-                </strong>
-                <span>Jsc</span>
-              </div>
-
-              <div class="measurement-result">
-                <strong>
-                  @Model.FormatValue(
-                    selected.Jv.FillFactorPercent,
-                    "%")
-                </strong>
-                <span>Fill factor</span>
-              </div>
-            </div>
-
-            <div class="measurement-secondary-results">
-              <div class="measurement-result secondary">
-                <strong>
-                  @Model.FormatValue(
-                    selected.Jv.VmppV,
-                    "V",
-                    "0.###")
-                </strong>
-                <span>Vmpp</span>
-              </div>
-
-              <div class="measurement-result secondary">
-                <strong>
-                  @Model.FormatValue(
-                    selected.Jv.JmppMilliampPerCm2,
-                    "mA/cm²")
-                </strong>
-                <span>Jmpp</span>
-              </div>
-
-              <div class="measurement-result secondary">
-                <strong>
-                  @Model.FormatValue(
-                    selected.Jv.PmppMilliwattPerCm2,
-                    "mW/cm²")
-                </strong>
-                <span>Pmpp</span>
-              </div>
-            </div>
+            }
           }
           else if (selected.Type == MeasurementType.EQE && selected.Eqe != null)
           {
@@ -414,49 +342,40 @@
         </div>
       </div>
 
-      @if (selected.Type == MeasurementType.JV && Model.JvPlot != null)
+      @if (Model.SelectedPlots.Count > 0)
       {
-        <div class="measurement-plot-card">
-          <div class="measurement-card-header">
-            <div>
-              <div class="eyebrow">RAW DATA</div>
-              <h2>JV curve</h2>
+        @for (var plotIndex = 0; plotIndex < Model.SelectedPlots.Count; plotIndex++)
+        {
+          var plot = Model.SelectedPlots[plotIndex];
+
+          <div class="measurement-plot-card">
+            <div class="measurement-card-header">
+              <div>
+                <div class="eyebrow">RAW DATA</div>
+                <h2>@plot.Title</h2>
+              </div>
+            </div>
+
+            <div class="measurement-chart-container">
+              <canvas id="measurementPlot-@plotIndex"></canvas>
             </div>
           </div>
-
-          @if (Model.JvPlot.HasData)
-          {
-            <div class="jv-chart-container">
-              <canvas id="jvChart"></canvas>
-            </div>
-          }
-          else
-          {
-            <div class="measurement-empty">
-              Plot unavailable.
-
-              @if (!string.IsNullOrWhiteSpace(Model.JvPlot.Error))
-              {
-                <span>@Model.JvPlot.Error</span>
-              }
-            </div>
-          }
-        </div>
+        }
       }
     </div>
-    }
+  }
 </div>
 
 @section Scripts {
-  @if (Model.JvPlot?.HasData == true)
+  @if (Model.SelectedPlots.Count > 0)
   {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
     <script>
       (() => {
-        const plot = @Html.Raw(
+        const plots = @Html.Raw(
           JsonSerializer.Serialize(
-            Model.JvPlot,
+            Model.SelectedPlots,
             new JsonSerializerOptions
             {
               PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -464,90 +383,83 @@
           )
         );
 
-        const datasets = [];
+        const seriesColors = [
+          "#2563eb",
+          "#dc2626",
+          "#16a34a",
+          "#9333ea",
+          "#ea580c"
+        ];
 
-        if (plot.forward.length > 0) {
-          datasets.push({
-            label: "Forward",
-            data: plot.forward,
-            showLine: true,
-            pointRadius: 0,
-            pointHoverRadius: 4,
-            borderWidth: 2,
-            borderColor: "#2563eb",
-            backgroundColor: "#2563eb"
-          });
-        }
+        plots.forEach((plot, plotIndex) => {
+          const canvas =
+            document.getElementById(
+              `measurementPlot-${plotIndex}`);
 
-        if (plot.reverse.length > 0) {
-          datasets.push({
-            label: "Reverse",
-            data: plot.reverse,
-            showLine: true,
-            pointRadius: 0,
-            pointHoverRadius: 4,
-            borderWidth: 2,
-            borderColor: "#dc2626",
-            backgroundColor: "#dc2626"
-          });
-        }
+          if (!canvas)
+            return;
 
-        const canvas = document.getElementById("jvChart");
+          const datasets =
+            plot.series.map((series, seriesIndex) => {
+              const color =
+                seriesColors[
+                  seriesIndex % seriesColors.length
+                ];
 
-        if (!canvas)
-          return;
+              return {
+                label: series.label,
+                data: series.points,
+                showLine: true,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                borderWidth: 2,
+                borderColor: color,
+                backgroundColor: color
+              };
+            });
 
-        new Chart(canvas, {
-          type: "scatter",
+          new Chart(canvas, {
+            type: "scatter",
 
-          data: {
-            datasets
-          },
-
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-
-            animation: false,
-
-            interaction: {
-              mode: "nearest",
-              intersect: false
+            data: {
+              datasets
             },
 
-            scales: {
-              x: {
-                type: "linear",
-                title: {
-                  display: true,
-                  text: "Voltage (V)"
-                }
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+
+              animation: false,
+
+              interaction: {
+                mode: "nearest",
+                intersect: false
               },
 
-              y: {
-                title: {
-                  display: true,
-                  text: "Current density (mA/cm²)"
-                }
-              }
-            },
-
-            plugins: {
-              legend: {
-                display: datasets.length > 1
-              },
-
-              tooltip: {
-                callbacks: {
-                  label(context) {
-                    const point = context.raw;
-
-                    return `${context.dataset.label}: ${point.x.toFixed(4)} V, ${point.y.toFixed(3)} mA/cm²`;
+              scales: {
+                x: {
+                  type: "linear",
+                  title: {
+                    display: true,
+                    text: plot.xAxisLabel
                   }
+                },
+
+                y: {
+                  title: {
+                    display: true,
+                    text: plot.yAxisLabel
+                  }
+                }
+              },
+
+              plugins: {
+                legend: {
+                  display: datasets.length > 1
                 }
               }
             }
-          }
+          });
         });
       })();
     </script>

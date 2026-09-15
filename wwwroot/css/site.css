@@ -1857,17 +1857,17 @@ body {
     overflow: hidden;
 }
 
-.jv-chart-container {
+.measurement-chart-container {
     position: relative;
     height: 420px;
     padding: 12px 18px 18px;
 }
 
-@media (max-width: 650px) {
-    .jv-chart-container {
-        height: 320px;
-        padding: 10px;
-    }
+@media (max-width: 900px) {
+  .measurement-chart-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
 }
 
 /* ---------------------------------------------------------
@@ -1899,22 +1899,4 @@ body {
     border-radius: 9px;
     background: white;
     overflow: hidden;
-}
-
-.jv-chart-container {
-    position: relative;
-    width: 100%;
-    /* aspect-ratio: 1 / 1; */
-    padding: 12px 18px 18px;
-}
-
-@media (max-width: 900px) {
-    .measurement-result-layout.has-plot {
-        grid-template-columns: 1fr;
-    }
-
-    .jv-chart-container {
-        max-width: 600px;
-        margin: 0 auto;
-    }
 }

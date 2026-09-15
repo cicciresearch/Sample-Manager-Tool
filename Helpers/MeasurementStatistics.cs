@@ -1,3 +1,4 @@
+using Cicci.SampleManager.Measurements.Common;
 using Cicci.SampleManager.Models;
 
 namespace Cicci.SampleManager.Helpers;
@@ -78,8 +79,8 @@ public static class MeasurementStatistics
         var summary = new BatchMeasurementStatistics
         {
             Type = type,
-            MetricName = definition.Value.MetricName,
-            Unit = definition.Value.Unit,
+            MetricName = definition.MetricName,
+            Unit = definition.Unit,
 
             TotalDevices = batch.Samples
                 .Sum(sample => sample.Devices.Count),
@@ -132,30 +133,54 @@ public static class MeasurementStatistics
             .FirstOrDefault();
     }
 
-    // Defines which result is used as the primary statistic for each test.
-    private static (string MetricName, string Unit)? GetMetricDefinition(
+    // Returns the primary statistic definition for one measurement type.
+    private static MeasurementStatisticDefinition? GetMetricDefinition(
         MeasurementType type)
     {
+        var definition =
+            MeasurementRegistry.Get(type);
+
+        // Registered measurement types provide their own statistic definition.
+        if (definition?.Statistic != null)
+        {
+            return definition.Statistic;
+        }
+
+        // Temporary legacy handling for measurement types that have
+        // not yet been migrated to the registry.
         return type switch
         {
-            MeasurementType.JV =>
-                ("Efficiency", "%"),
-
             MeasurementType.EQE =>
-                ("Integrated Jsc", "mA/cm²"),
+                new MeasurementStatisticDefinition
+                {
+                    MetricName = "Integrated Jsc",
+                    Unit = "mA/cm²"
+                },
 
             _ => null
         };
     }
 
     // Extracts the primary numerical result from one measurement.
-    private static double? GetMetricValue(Measurement measurement)
+    private static double? GetMetricValue(
+        Measurement measurement)
     {
+        var definition =
+            MeasurementRegistry.Get(
+                measurement.Type);
+
+        // Registered measurement types know how to extract
+        // their own statistical value.
+        if (definition != null)
+        {
+            return definition.GetStatisticValue(
+                measurement);
+        }
+
+        // Temporary legacy handling for measurement types that have
+        // not yet been migrated to the registry.
         return measurement.Type switch
         {
-            MeasurementType.JV =>
-                measurement.Jv?.EfficiencyPercent,
-
             MeasurementType.EQE =>
                 measurement.Eqe?.Jsc,
 
