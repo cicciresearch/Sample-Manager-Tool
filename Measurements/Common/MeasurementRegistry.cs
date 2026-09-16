@@ -15,6 +15,8 @@ public static class MeasurementRegistry
             [MeasurementType.JV] =
                 new JvDefinition(),
             [MeasurementType.EQE] =
+                new EqeDefinition(),
+            [MeasurementType.EIS] =
                 new EqeDefinition()
         };
 

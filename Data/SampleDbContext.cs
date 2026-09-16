@@ -23,6 +23,7 @@ public class SampleDbContext : DbContext
     public DbSet<Measurement> Measurements => Set<Measurement>();
     public DbSet<JvMeasurement> JvMeasurements => Set<JvMeasurement>();
     public DbSet<EqeMeasurement> EqeMeasurements => Set<EqeMeasurement>();
+    public DbSet<EisMeasurement> EisMeasurements => Set<EisMeasurement>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -134,7 +135,6 @@ public class SampleDbContext : DbContext
         modelBuilder.Entity<EqeMeasurement>()
             .HasKey(eqe => eqe.MeasurementId);
 
-        // EQE uses the same one-to-one pattern.
         modelBuilder.Entity<Measurement>()
             .HasOne(measurement => measurement.Eqe)
             .WithOne(eqe => eqe.Measurement)
@@ -144,7 +144,6 @@ public class SampleDbContext : DbContext
         modelBuilder.Entity<EisMeasurement>()
             .HasKey(eis => eis.MeasurementId);
 
-        // EQE uses the same one-to-one pattern.
         modelBuilder.Entity<Measurement>()
             .HasOne(measurement => measurement.Eis)
             .WithOne(eis => eis.Measurement)

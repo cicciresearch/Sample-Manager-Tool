@@ -32,7 +32,7 @@ public class EisDefinition : IMeasurementDefinition
 
     public string GetHighlight(Measurement measurement)
     {
-        if (measurement.Eis?.PeakFreq is double PeakFreq)
+        if (measurement.Eis?.PeakFrequencyHz is double PeakFreq)
             return $"Frequency {PeakFreq:0.###} Hz";
         return "Measured";
     }
@@ -52,7 +52,7 @@ public class EisDefinition : IMeasurementDefinition
         presentation.PrimaryResults.Add(new MeasurementResult
         {
             Label = "Peak Frequency",
-            Value = $"{eis.PeakFreq} Hz"
+            Value = $"{eis.PeakFrequencyHz} Hz"
         });
 
         return presentation;
@@ -60,7 +60,7 @@ public class EisDefinition : IMeasurementDefinition
 
     public double? GetStatisticValue(Measurement measurement)
     {
-        return measurement.Eis?.PeakFreq;
+        return measurement.Eis?.PeakFrequencyHz;
     }
 
     public async Task<IReadOnlyList<MeasurementPlot>> LoadPlotsAsync(Measurement measurement)
@@ -105,7 +105,7 @@ public class EisDefinition : IMeasurementDefinition
 
         if (EisData.Nyquist.Count > 0)
         {
-            plotNyquist.Series.Add(
+            plotBodeMag.Series.Add(
                 new MeasurementPlotSeries
                 {
                     Label = "Bode",
@@ -129,7 +129,7 @@ public class EisDefinition : IMeasurementDefinition
 
         if (EisData.Nyquist.Count > 0)
         {
-            plotNyquist.Series.Add(
+            plotBodePhase.Series.Add(
                 new MeasurementPlotSeries
                 {
                     Label = "Bode",
