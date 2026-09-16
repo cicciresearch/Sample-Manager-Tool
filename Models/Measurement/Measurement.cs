@@ -23,4 +23,5 @@ public class Measurement
 
     public JvMeasurement? Jv { get; set; }
     public EqeMeasurement? Eqe { get; set; }
+    public EisMeasurement? Eis { get; set; }
 }

@@ -123,9 +123,6 @@ public class SampleDbContext : DbContext
         modelBuilder.Entity<JvMeasurement>()
             .HasKey(jv => jv.MeasurementId);
 
-        modelBuilder.Entity<EqeMeasurement>()
-            .HasKey(eqe => eqe.MeasurementId);
-
         // JvMeasurement uses MeasurementId as both its primary key and
         // foreign key. This creates a one-to-one relationship.
         modelBuilder.Entity<Measurement>()
@@ -134,12 +131,26 @@ public class SampleDbContext : DbContext
             .HasForeignKey<JvMeasurement>(jv => jv.MeasurementId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<EqeMeasurement>()
+            .HasKey(eqe => eqe.MeasurementId);
+
         // EQE uses the same one-to-one pattern.
         modelBuilder.Entity<Measurement>()
             .HasOne(measurement => measurement.Eqe)
             .WithOne(eqe => eqe.Measurement)
             .HasForeignKey<EqeMeasurement>(eqe => eqe.MeasurementId)
             .OnDelete(DeleteBehavior.Cascade);
-            
+
+        modelBuilder.Entity<EisMeasurement>()
+            .HasKey(eis => eis.MeasurementId);
+
+        // EQE uses the same one-to-one pattern.
+        modelBuilder.Entity<Measurement>()
+            .HasOne(measurement => measurement.Eis)
+            .WithOne(eis => eis.Measurement)
+            .HasForeignKey<EisMeasurement>(eis => eis.MeasurementId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+
     }
 }
