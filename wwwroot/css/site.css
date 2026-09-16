@@ -1850,24 +1850,31 @@ body {
 --------------------------------------------------------- */
 
 .measurement-plot-card {
-    margin-top: 18px;
-    border: 1px solid #e3e6e9;
-    border-radius: 9px;
+    min-width: 0;
     background: white;
+    border: 1px solid #e3e6e9;
+    border-radius: 12px;
     overflow: hidden;
+}
+
+.measurement-plot-section {
+    min-width: 0;
+}
+
+.measurement-plot-section + .measurement-plot-section {
+    border-top: 1px solid #e3e6e9;
+}
+
+.measurement-plot-title {
+    padding: 16px 22px 0;
+    font-size: 0.84rem;
+    font-weight: 650;
 }
 
 .measurement-chart-container {
     position: relative;
-    height: 420px;
+    height: 360px;
     padding: 12px 18px 18px;
-}
-
-@media (max-width: 900px) {
-  .measurement-chart-container {
-    max-width: 600px;
-    margin: 0 auto;
-  }
 }
 
 /* ---------------------------------------------------------
@@ -1893,10 +1900,12 @@ body {
     min-width: 0;
 }
 
-.measurement-plot-card {
-    min-width: 0;
-    border: 1px solid #e3e6e9;
-    border-radius: 9px;
-    background: white;
-    overflow: hidden;
+@media (max-width: 900px) {
+    .measurement-result-layout.has-plot {
+        grid-template-columns: 1fr;
+    }
+
+    .measurement-chart-container {
+        height: 340px;
+    }
 }

@@ -1,12 +1,10 @@
-using System.Drawing;
-using System.Globalization;
 using Cicci.SampleManager.Measurements.Common;
 
 namespace Cicci.SampleManager.Measurements.EQE;
 
 public static class EqeDataFileReader
 {
-    public static async Task<EqePlotData> ReadEQEAsync(string? dataPath)
+    public static async Task<EqePlotData> ReadAsync(string? dataPath)
     {
         var result = new EqePlotData();
 

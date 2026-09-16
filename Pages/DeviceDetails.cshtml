@@ -315,23 +315,36 @@
 
       @if (Model.SelectedPlots.Count > 0)
       {
-        @for (var plotIndex = 0; plotIndex < Model.SelectedPlots.Count; plotIndex++)
-        {
-          var plot = Model.SelectedPlots[plotIndex];
-
-          <div class="measurement-plot-card">
-            <div class="measurement-card-header">
-              <div>
-                <div class="eyebrow">RAW DATA</div>
-                <h2>@plot.Title</h2>
-              </div>
-            </div>
-
-            <div class="measurement-chart-container">
-              <canvas id="measurementPlot-@plotIndex"></canvas>
+        <div class="measurement-plot-card">
+          <div class="measurement-card-header">
+            <div>
+              <div class="eyebrow">RAW DATA</div>
+              <h2>
+                @(Model.SelectedPlots.Count == 1
+                  ? Model.SelectedPlots[0].Title
+                  : "Measurement plots")
+              </h2>
             </div>
           </div>
-        }
+
+          @for (var plotIndex = 0; plotIndex < Model.SelectedPlots.Count; plotIndex++)
+          {
+            var plot = Model.SelectedPlots[plotIndex];
+
+            <div class="measurement-plot-section">
+              @if (Model.SelectedPlots.Count > 1)
+              {
+                <div class="measurement-plot-title">
+                  @plot.Title
+                </div>
+              }
+
+              <div class="measurement-chart-container">
+                <canvas id="measurementPlot-@plotIndex"></canvas>
+              </div>
+            </div>
+          }
+        </div>
       }
     </div>
   }

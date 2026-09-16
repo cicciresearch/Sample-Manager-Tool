@@ -70,11 +70,11 @@ public class EqeDefinition : IMeasurementDefinition
         if (string.IsNullOrWhiteSpace(measurement.DataPath))
             return [];
 
-        var EqeData = await EqeDataFileReader.ReadEQEAsync(measurement.DataPath);
+        var EqeData = await EqeDataFileReader.ReadAsync(measurement.DataPath);
         if (!EqeData.HasData)
             return [];
 
-        var plot = new MeasurementPlot
+        var plotEQE = new MeasurementPlot
         {
             Title = "EQE curve",
             XAxisLabel = "Wavelength (nm)",
@@ -83,7 +83,7 @@ public class EqeDefinition : IMeasurementDefinition
 
         if (EqeData.EQE.Count > 0)
         {
-            plot.Series.Add(
+            plotEQE.Series.Add(
                 new MeasurementPlotSeries
                 {
                     Label = "EQE",
@@ -98,9 +98,16 @@ public class EqeDefinition : IMeasurementDefinition
                 });
         }
 
+        var plotJsc = new MeasurementPlot
+        {
+            Title = "Jsc curve",
+            XAxisLabel = "Wavelength (nm)",
+            YAxisLabel = "Jsc (mA/cm²)"
+        };
+
         if (EqeData.Jsc.Count > 0)
         {
-            plot.Series.Add(
+            plotJsc.Series.Add(
                 new MeasurementPlotSeries
                 {
                     Label = "Jsc",
@@ -115,7 +122,7 @@ public class EqeDefinition : IMeasurementDefinition
                 });
         }
 
-        return [plot];
+        return [plotEQE,plotJsc];
     }
 }
 
