@@ -277,20 +277,6 @@ public class DeviceDetailsModel : PageModel
         return MeasurementDisplay.GetHighlight(
             measurement);
     }
-
-    // Formats nullable scientific results for display.
-    public string FormatValue(
-        double? value,
-        string unit,
-        string format = "0.##")
-    {
-        if (!value.HasValue)
-            return "—";
-
-        return string.IsNullOrWhiteSpace(unit)
-            ? value.Value.ToString(format)
-            : $"{value.Value.ToString(format)} {unit}";
-    }
 }
 
 // Small read-only model used by the measurement type filter.

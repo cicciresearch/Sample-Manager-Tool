@@ -1,5 +1,7 @@
-using Cicci.SampleManager.Measurements.JV;
 using Cicci.SampleManager.Models;
+using Cicci.SampleManager.Measurements.JV;
+using Cicci.SampleManager.Measurements.EQE;
+
 
 namespace Cicci.SampleManager.Measurements.Common;
 
@@ -11,7 +13,9 @@ public static class MeasurementRegistry
         new()
         {
             [MeasurementType.JV] =
-                new JvDefinition()
+                new JvDefinition(),
+            [MeasurementType.EQE] =
+                new EqeDefinition()
         };
 
     // Returns the definition registered for one measurement type.

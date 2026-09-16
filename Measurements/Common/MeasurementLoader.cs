@@ -15,11 +15,6 @@ public static class MeasurementLoader
             query = definition.IncludeData(query);
         }
 
-        // Temporary legacy support until EQE is migrated
-        // to the MeasurementRegistry.
-        query = query.Include(
-            measurement => measurement.Eqe);
-
         return query;
     }
 

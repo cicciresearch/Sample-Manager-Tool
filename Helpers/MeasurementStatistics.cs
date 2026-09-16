@@ -145,20 +145,7 @@ public static class MeasurementStatistics
         {
             return definition.Statistic;
         }
-
-        // Temporary legacy handling for measurement types that have
-        // not yet been migrated to the registry.
-        return type switch
-        {
-            MeasurementType.EQE =>
-                new MeasurementStatisticDefinition
-                {
-                    MetricName = "Integrated Jsc",
-                    Unit = "mA/cm²"
-                },
-
-            _ => null
-        };
+        return null;
     }
 
     // Extracts the primary numerical result from one measurement.
@@ -176,16 +163,7 @@ public static class MeasurementStatistics
             return definition.GetStatisticValue(
                 measurement);
         }
-
-        // Temporary legacy handling for measurement types that have
-        // not yet been migrated to the registry.
-        return measurement.Type switch
-        {
-            MeasurementType.EQE =>
-                measurement.Eqe?.Jsc,
-
-            _ => null
-        };
+        return null;
     }
 
     // Calculates the arithmetic mean, or NULL if there are no valid values.

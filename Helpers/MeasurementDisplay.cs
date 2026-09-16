@@ -17,20 +17,10 @@ public static class MeasurementDisplay
         {
             return definition.GetHighlight(measurement);
         }
-
-        // Temporary legacy handling for measurement types that have
-        // not yet been migrated to the registry.
-        return measurement.Type switch
+        else
         {
-            MeasurementType.EQE
-                when measurement.Eqe?.Jsc is double jsc
-                => $"Jsc {jsc:0.##} mA/cm²",
+            return "Measured";
+        }
 
-            MeasurementType.EQE
-                when measurement.Eqe?.PeakEQE is double peakEqe
-                => $"Peak EQE {peakEqe:0.##} %",
-
-            _ => "Measured"
-        };
     }
 }

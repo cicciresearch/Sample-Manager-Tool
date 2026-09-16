@@ -41,7 +41,7 @@
       <div class="latest-measurement-grid">
         @foreach (var measurement in Model.LatestMeasurements)
         {
-          <a asp-page="/DeviceDetails" asp-route-id="@Model.Device.Id" asp-route-type="@measurement.Type" asp-route-page="1"
+          <a asp-page="/DeviceDetails" asp-route-id="@Model.Device.Id" asp-route-type="@measurement.Type" asp-route-historyPage="1"
              asp-route-measurementId="@measurement.Id" class="latest-measurement-card">
 
             <div class="latest-measurement-header">
@@ -296,35 +296,6 @@
                 }
               </div>
             }
-          }
-          else if (selected.Type == MeasurementType.EQE && selected.Eqe != null)
-          {
-            <div class="measurement-card-header">
-              <div>
-                <div class="eyebrow">SPECIFIC</div>
-                <h2>EQE results</h2>
-              </div>
-            </div>
-
-            <div class="measurement-primary-results">
-              <div class="measurement-result">
-                <strong>
-                  @Model.FormatValue(
-                    selected.Eqe.Jsc,
-                    "mA/cm²")
-                </strong>
-                <span>Integrated Jsc</span>
-              </div>
-
-              <div class="measurement-result">
-                <strong>
-                  @Model.FormatValue(
-                    selected.Eqe.PeakEQE,
-                    "%")
-                </strong>
-                <span>Peak EQE</span>
-              </div>
-            </div>
           }
           else
           {
