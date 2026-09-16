@@ -103,7 +103,7 @@ public class EisDefinition : IMeasurementDefinition
             YAxisLabel = "Magnitude (Ohm)"
         };
 
-        if (EisData.Nyquist.Count > 0)
+        if (EisData.BodeMagnitude.Count > 0)
         {
             plotBodeMag.Series.Add(
                 new MeasurementPlotSeries
@@ -127,7 +127,7 @@ public class EisDefinition : IMeasurementDefinition
             YAxisLabel = "Phase (°)"
         };
 
-        if (EisData.Nyquist.Count > 0)
+        if (EisData.BodePhase.Count > 0)
         {
             plotBodePhase.Series.Add(
                 new MeasurementPlotSeries
