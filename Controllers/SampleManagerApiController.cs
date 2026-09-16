@@ -428,4 +428,34 @@ public class SampleManagerApiController : ControllerBase
 
         return MeasurementCreated(measurement);
     }
+
+    // Stores one EIS measurement with common and EIS-specific data.
+    [HttpPost("devices/{deviceId:guid}/measurements/eis")]
+    public async Task<IActionResult> CreateEisMeasurementAsync(
+        Guid deviceId,
+        [FromBody] CreateMeasurementRequest<EisMeasurementRequest> request)
+    {
+        if (!await _measurementService.DeviceExistsAsync(deviceId))
+        {
+            return NotFound(new
+            {
+                error = "Device not found."
+            });
+        }
+
+        var measurement = _measurementService.CreateBaseMeasurement(
+            deviceId,
+            MeasurementType.EIS,
+            request.Common
+        );
+
+        measurement.Eis = new EisMeasurement
+        {
+            PeakFrequencyHz = request.Specific.PeakFrequencyHz,
+        };
+
+        await _measurementService.SaveAsync(measurement);
+
+        return MeasurementCreated(measurement);
+    }
 }
