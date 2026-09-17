@@ -8,9 +8,7 @@
 <div class="sample-page">
   <div class="details-header">
     <div>
-      <a asp-page="/BatchDetails"
-         asp-route-id="@Model.Sample.Batch.Id"
-         class="details-back">
+      <a asp-page="/BatchDetails" asp-route-id="@Model.Sample.Batch.Id" class="details-back">
         ← Back to @Model.Sample.Batch.Code
       </a>
 
@@ -72,16 +70,15 @@
       <div class="sample-device-list">
         @foreach (var device in Model.Sample.Devices.OrderBy(device => device.Pixel))
         {
-          <a asp-page="/DeviceDetails"
-             asp-route-id="@device.Id"
-             class="sample-device-row">
+          var measurementCount = Model.GetMeasurementCount(device);
+          <a asp-page="/DeviceDetails" asp-route-id="@device.Id" class="sample-device-row">
 
             <div class="sample-device-main">
               <strong>@device.Pixel</strong>
-              <span>@device.Measurements.Count measurement(s)</span>
+              <span>@measurementCount measurement(s)</span>
             </div>
 
-            @if (device.Measurements.Count == 0)
+            @if (measurementCount == 0)
             {
               <div class="sample-device-empty">
                 No measurements

@@ -18,56 +18,75 @@ public static class MeasurementLoader
         return query;
     }
 
-    // Loads all measurements for a collection of devices and attaches them
-    // to each Device.Measurements collection.
-    public static async Task LoadForDevicesAsync(
+    // Returns the number of measurements stored for each selected pixel.
+    public static async Task<Dictionary<Guid, int>> LoadCountsForDevicesAsync(
         SampleDbContext database,
-        IEnumerable<Device> devices)
+        IEnumerable<Guid> deviceIds)
     {
-        var deviceList =
-            devices.ToList();
-
-        if (deviceList.Count == 0)
-            return;
-
-        var deviceIds = deviceList
-            .Select(device => device.Id)
+        var ids = deviceIds
+            .Distinct()
             .ToList();
+
+        if (ids.Count == 0)
+            return [];
+
+        return await database.Measurements
+            .AsNoTracking()
+            .Where(measurement =>
+                ids.Contains(measurement.DeviceId))
+            .GroupBy(measurement =>
+                measurement.DeviceId)
+            .Select(group => new
+            {
+                DeviceId = group.Key,
+                Count = group.Count()
+            })
+            .ToDictionaryAsync(
+                item => item.DeviceId,
+                item => item.Count);
+    }
+
+    // Loads only the newest measurement of each type for every selected pixel.
+    public static async Task<List<Measurement>> LoadLatestForDevicesAsync(
+        SampleDbContext database,
+        IEnumerable<Guid> deviceIds)
+    {
+        var ids = deviceIds
+            .Distinct()
+            .ToList();
+
+        if (ids.Count == 0)
+            return [];
+
+        var latestMeasurementIds =
+            database.Measurements
+                .AsNoTracking()
+                .Where(measurement =>
+                    ids.Contains(measurement.DeviceId))
+                .GroupBy(measurement => new
+                {
+                    measurement.DeviceId,
+                    measurement.Type
+                })
+                .Select(group =>
+                    group
+                        .OrderByDescending(measurement =>
+                            measurement.MeasuredAt)
+                        .ThenByDescending(measurement =>
+                            measurement.Id)
+                        .Select(measurement =>
+                            measurement.Id)
+                        .First());
 
         IQueryable<Measurement> query =
             database.Measurements
                 .AsNoTracking()
                 .Where(measurement =>
-                    deviceIds.Contains(
-                        measurement.DeviceId));
+                    latestMeasurementIds.Contains(
+                        measurement.Id));
 
         query = IncludeDetails(query);
 
-        var measurements =
-            await query.ToListAsync();
-
-        var measurementsByDevice =
-            measurements
-                .GroupBy(measurement =>
-                    measurement.DeviceId)
-                .ToDictionary(
-                    group => group.Key,
-                    group => group.ToList());
-
-        foreach (var device in deviceList)
-        {
-            if (measurementsByDevice.TryGetValue(
-                device.Id,
-                out var deviceMeasurements))
-            {
-                device.Measurements =
-                    deviceMeasurements;
-            }
-            else
-            {
-                device.Measurements =
-                    new List<Measurement>();
-            }
-        }
+        return await query.ToListAsync();
     }
 }

@@ -20,11 +20,17 @@ public class SampleDetailsModel : PageModel
 
     public Sample Sample { get; set; } = null!;
 
+    public Dictionary<Guid, int> MeasurementCounts { get; set; } = [];
+
+    public Dictionary<Guid, List<Measurement>> LatestMeasurementsByDevice
+    { get; set; } = [];
+
     public int TotalMeasurements =>
-        Sample.Devices.Sum(device => device.Measurements.Count);
+        MeasurementCounts.Values.Sum();
 
     public int MeasuredDevices =>
-        Sample.Devices.Count(device => device.Measurements.Count > 0);
+        MeasurementCounts.Count(item =>
+            item.Value > 0);
 
     // Loads one substrate, all its pixels and their measurement summaries.
     public async Task<IActionResult> OnGetAsync(Guid id)
@@ -38,28 +44,58 @@ public class SampleDetailsModel : PageModel
 
         if (sample == null)
             return NotFound();
-            
-        await MeasurementLoader.LoadForDevicesAsync(
-            _database,
-            sample.Devices);
+
+        var deviceIds = sample.Devices
+            .Select(device => device.Id)
+            .ToList();
+
+        MeasurementCounts =
+            await MeasurementLoader.LoadCountsForDevicesAsync(
+                _database,
+                deviceIds);
+
+        var latestMeasurements =
+            await MeasurementLoader.LoadLatestForDevicesAsync(
+                _database,
+                deviceIds);
+
+        LatestMeasurementsByDevice =
+            latestMeasurements
+                .GroupBy(measurement =>
+                    measurement.DeviceId)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group
+                        .OrderBy(measurement =>
+                            measurement.Type)
+                        .ToList());
 
         Sample = sample;
 
         return Page();
     }
 
-    // Returns only the newest measurement of each type for one pixel.
-    public IEnumerable<Measurement> GetLatestMeasurements(Device device)
+    // Returns the newest measurement of each type for one pixel.
+    public IReadOnlyList<Measurement> GetLatestMeasurements(
+        Device device)
     {
-        return device.Measurements
-            .GroupBy(measurement => measurement.Type)
-            .Select(group => group
-                .OrderByDescending(measurement => measurement.MeasuredAt)
-                .ThenByDescending(measurement => measurement.Id)
-                .First())
-            .OrderBy(measurement => measurement.Type);
+        return LatestMeasurementsByDevice.TryGetValue(
+            device.Id,
+            out var measurements)
+            ? measurements
+            : [];
     }
 
+    // Returns the complete measurement count for one pixel.
+    public int GetMeasurementCount(Device device)
+    {
+        return MeasurementCounts.TryGetValue(
+            device.Id,
+            out var count)
+            ? count
+            : 0;
+    }
+    
     // Returns the shared compact result used by measurement overview pages.
     public string GetMeasurementHighlight(Measurement measurement)
     {

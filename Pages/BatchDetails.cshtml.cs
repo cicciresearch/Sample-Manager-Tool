@@ -51,16 +51,25 @@ public class BatchDetailsModel : PageModel
         if (batch == null)
             return false;
 
-        var devices = batch.Samples
-            .SelectMany(sample => sample.Devices)
+        var deviceIds = batch.Samples
+            .SelectMany(sample =>
+                sample.Devices)
+            .Select(device =>
+                device.Id)
             .ToList();
 
-        await MeasurementLoader.LoadForDevicesAsync(
-            _database,
-            devices);
+        var latestMeasurements =
+            await MeasurementLoader.LoadLatestForDevicesAsync(
+                _database,
+                deviceIds);
 
         Batch = batch;
-        MeasurementSummaries = MeasurementStatistics.GetBatchSummaries(batch);
+
+        MeasurementSummaries =
+            MeasurementStatistics.GetBatchSummaries(
+                batch,
+                latestMeasurements);
+                
         return true;
     }
 

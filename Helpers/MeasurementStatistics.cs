@@ -35,139 +35,139 @@ public class SampleMeasurementStatistics
 
 public static class MeasurementStatistics
 {
-    // Calculates one batch summary for each supported measurement type.
-    public static List<BatchMeasurementStatistics> GetBatchSummaries(Batch batch)
+    // Calculates one batch summary for each registered measurement type.
+    public static List<BatchMeasurementStatistics> GetBatchSummaries(
+        Batch batch,
+        IReadOnlyCollection<Measurement> latestMeasurements)
     {
-        var summaries = new List<BatchMeasurementStatistics>();
+        var summaries =
+            new List<BatchMeasurementStatistics>();
 
-        foreach (var type in Enum.GetValues<MeasurementType>())
+        foreach (var definition in MeasurementRegistry.All
+            .OrderBy(definition =>
+                definition.Type.ToString()))
         {
-            var summary = CalculateBatchSummary(batch, type);
+            var summary = CalculateBatchSummary(
+                batch,
+                latestMeasurements,
+                definition);
 
-            if (summary != null && summary.MeasuredDevices > 0)
+            if (summary != null &&
+                summary.MeasuredDevices > 0)
+            {
                 summaries.Add(summary);
+            }
         }
 
         return summaries;
     }
 
-    // Calculates statistics using only the latest measurement of this type
-    // for each pixel, so repeatedly measuring one pixel does not give it
-    // more statistical weight than the other pixels.
+    // Calculates statistics from the newest measurement of this type
+    // for each pixel.
     private static BatchMeasurementStatistics? CalculateBatchSummary(
         Batch batch,
-        MeasurementType type)
+        IReadOnlyCollection<Measurement> latestMeasurements,
+        IMeasurementDefinition definition)
     {
-        var definition = GetMetricDefinition(type);
+        var statistic = definition.Statistic;
 
-        if (definition == null)
+        if (statistic == null)
             return null;
 
-        var latestMeasurements = batch.Samples
-            .SelectMany(sample => sample.Devices)
-            .Select(device => GetLatestMeasurement(device, type))
-            .Where(measurement => measurement != null)
-            .Cast<Measurement>()
+        var typeMeasurements = latestMeasurements
+            .Where(measurement =>
+                measurement.Type == definition.Type)
             .ToList();
 
-        var values = latestMeasurements
-            .Select(GetMetricValue)
+        var values = typeMeasurements
+            .Select(definition.GetStatisticValue)
             .Where(value => value.HasValue)
             .Select(value => value!.Value)
             .ToList();
 
-        var summary = new BatchMeasurementStatistics
-        {
-            Type = type,
-            MetricName = definition.MetricName,
-            Unit = definition.Unit,
-
-            TotalDevices = batch.Samples
-                .Sum(sample => sample.Devices.Count),
-
-            MeasuredDevices = latestMeasurements.Count,
-            ValidResults = values.Count,
-
-            Average = GetAverage(values),
-            StandardDeviation = GetStandardDeviation(values),
-            Minimum = values.Count > 0 ? values.Min() : null,
-            Maximum = values.Count > 0 ? values.Max() : null
-        };
-
-        foreach (var sample in batch.Samples.OrderBy(sample => sample.Code))
-        {
-            var sampleMeasurements = sample.Devices
-                .Select(device => GetLatestMeasurement(device, type))
-                .Where(measurement => measurement != null)
-                .Cast<Measurement>()
-                .ToList();
-
-            var sampleValues = sampleMeasurements
-                .Select(GetMetricValue)
-                .Where(value => value.HasValue)
-                .Select(value => value!.Value)
-                .ToList();
-
-            summary.Samples.Add(new SampleMeasurementStatistics
+        var summary =
+            new BatchMeasurementStatistics
             {
-                SampleId = sample.Id,
-                SampleCode = sample.Code,
-                TotalDevices = sample.Devices.Count,
-                MeasuredDevices = sampleMeasurements.Count,
-                Average = GetAverage(sampleValues)
-            });
+                Type = definition.Type,
+                MetricName = statistic.MetricName,
+                Unit = statistic.Unit,
+
+                TotalDevices = batch.Samples
+                    .Sum(sample =>
+                        sample.Devices.Count),
+
+                MeasuredDevices =
+                    typeMeasurements.Count,
+
+                ValidResults =
+                    values.Count,
+
+                Average =
+                    GetAverage(values),
+
+                StandardDeviation =
+                    GetStandardDeviation(values),
+
+                Minimum =
+                    values.Count > 0
+                        ? values.Min()
+                        : null,
+
+                Maximum =
+                    values.Count > 0
+                        ? values.Max()
+                        : null
+            };
+
+        foreach (var sample in batch.Samples
+            .OrderBy(sample =>
+                sample.Code))
+        {
+            var deviceIds = sample.Devices
+                .Select(device =>
+                    device.Id)
+                .ToHashSet();
+
+            var sampleMeasurements =
+                typeMeasurements
+                    .Where(measurement =>
+                        deviceIds.Contains(
+                            measurement.DeviceId))
+                    .ToList();
+
+            var sampleValues =
+                sampleMeasurements
+                    .Select(
+                        definition.GetStatisticValue)
+                    .Where(value =>
+                        value.HasValue)
+                    .Select(value =>
+                        value!.Value)
+                    .ToList();
+
+            summary.Samples.Add(
+                new SampleMeasurementStatistics
+                {
+                    SampleId = sample.Id,
+                    SampleCode = sample.Code,
+
+                    TotalDevices =
+                        sample.Devices.Count,
+
+                    MeasuredDevices =
+                        sampleMeasurements.Count,
+
+                    Average =
+                        GetAverage(sampleValues)
+                });
         }
 
         return summary;
     }
 
-    // Finds the newest measurement of one type performed on one pixel.
-    private static Measurement? GetLatestMeasurement(
-        Device device,
-        MeasurementType type)
-    {
-        return device.Measurements
-            .Where(measurement => measurement.Type == type)
-            .OrderByDescending(measurement => measurement.MeasuredAt)
-            .ThenByDescending(measurement => measurement.Id)
-            .FirstOrDefault();
-    }
-
-    // Returns the primary statistic definition for one measurement type.
-    private static MeasurementStatisticDefinition? GetMetricDefinition(
-        MeasurementType type)
-    {
-        var definition =
-            MeasurementRegistry.Get(type);
-
-        // Registered measurement types provide their own statistic definition.
-        if (definition?.Statistic != null)
-        {
-            return definition.Statistic;
-        }
-        return null;
-    }
-
-    // Extracts the primary numerical result from one measurement.
-    private static double? GetMetricValue(
-        Measurement measurement)
-    {
-        var definition =
-            MeasurementRegistry.Get(
-                measurement.Type);
-
-        // Registered measurement types know how to extract
-        // their own statistical value.
-        if (definition != null)
-        {
-            return definition.GetStatisticValue(
-                measurement);
-        }
-        return null;
-    }
-
     // Calculates the arithmetic mean, or NULL if there are no valid values.
-    private static double? GetAverage(List<double> values)
+    private static double? GetAverage(
+        List<double> values)
     {
         return values.Count > 0
             ? values.Average()
@@ -175,19 +175,23 @@ public static class MeasurementStatistics
     }
 
     // Calculates sample standard deviation using n - 1.
-    // At least two valid measurements are required.
-    private static double? GetStandardDeviation(List<double> values)
+    private static double? GetStandardDeviation(
+        List<double> values)
     {
         if (values.Count < 2)
             return null;
 
-        var average = values.Average();
+        var average =
+            values.Average();
 
-        var sumSquaredDifferences = values
-            .Sum(value => Math.Pow(value - average, 2));
+        var sumSquaredDifferences =
+            values.Sum(value =>
+                Math.Pow(
+                    value - average,
+                    2));
 
         return Math.Sqrt(
-            sumSquaredDifferences / (values.Count - 1)
-        );
+            sumSquaredDifferences /
+            (values.Count - 1));
     }
 }
