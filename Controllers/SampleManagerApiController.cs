@@ -548,6 +548,98 @@ public class SampleManagerApiController : ControllerBase
         return Ok(session);
     }
 
+    // Marks a running measurement session as successfully completed.
+    [HttpPost("measurement-sessions/{id:guid}/complete")]
+    public async Task<IActionResult> CompleteMeasurementSessionAsync(
+        Guid id)
+    {
+        var session = await _database.MeasurementSessions
+            .FirstOrDefaultAsync(session =>
+                session.Id == id);
+
+        if (session == null)
+            return NotFound();
+
+        if (session.Status == MeasurementSessionStatus.Completed)
+        {
+            return Ok(new
+            {
+                id = session.Id,
+                status = session.Status.ToString(),
+                endedAt = session.EndedAt
+            });
+        }
+
+        if (session.Status == MeasurementSessionStatus.Aborted)
+        {
+            return Conflict(new
+            {
+                error = "An aborted session cannot be completed."
+            });
+        }
+
+        session.Status =
+            MeasurementSessionStatus.Completed;
+
+        session.EndedAt =
+            DateTime.UtcNow;
+
+        await _database.SaveChangesAsync();
+
+        return Ok(new
+        {
+            id = session.Id,
+            status = session.Status.ToString(),
+            endedAt = session.EndedAt
+        });
+    }
+
+    // Marks a running measurement session as aborted.
+    [HttpPost("measurement-sessions/{id:guid}/abort")]
+    public async Task<IActionResult> AbortMeasurementSessionAsync(
+        Guid id)
+    {
+        var session = await _database.MeasurementSessions
+            .FirstOrDefaultAsync(session =>
+                session.Id == id);
+
+        if (session == null)
+            return NotFound();
+
+        if (session.Status == MeasurementSessionStatus.Aborted)
+        {
+            return Ok(new
+            {
+                id = session.Id,
+                status = session.Status.ToString(),
+                endedAt = session.EndedAt
+            });
+        }
+
+        if (session.Status == MeasurementSessionStatus.Completed)
+        {
+            return Conflict(new
+            {
+                error = "A completed session cannot be aborted."
+            });
+        }
+
+        session.Status =
+            MeasurementSessionStatus.Aborted;
+
+        session.EndedAt =
+            DateTime.UtcNow;
+
+        await _database.SaveChangesAsync();
+
+        return Ok(new
+        {
+            id = session.Id,
+            status = session.Status.ToString(),
+            endedAt = session.EndedAt
+        });
+    }
+
     // Stores one JV measurement with common and JV-specific data.
     [HttpPost("devices/{deviceId:guid}/measurements/jv")]
     public async Task<IActionResult> CreateJvMeasurementAsync(
