@@ -25,6 +25,9 @@ public class SampleDbContext : DbContext
     public DbSet<EqeMeasurement> EqeMeasurements => Set<EqeMeasurement>();
     public DbSet<EisMeasurement> EisMeasurements => Set<EisMeasurement>();
 
+    public DbSet<MeasurementSession> MeasurementSessions => Set<MeasurementSession>();
+    public DbSet<MeasurementSessionDevice> MeasurementSessionDevices => Set<MeasurementSessionDevice>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -103,6 +106,58 @@ public class SampleDbContext : DbContext
             .WithOne(measurement => measurement.Device)
             .HasForeignKey(measurement => measurement.DeviceId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Store session enums as readable strings.
+        modelBuilder.Entity<MeasurementSession>()
+            .Property(session => session.Type)
+            .HasConversion<string>();
+
+        modelBuilder.Entity<MeasurementSession>()
+            .Property(session => session.Status)
+            .HasConversion<string>();
+
+        // A session can contain measurements from one or more devices.
+        // Deleting a session does not automatically delete its measurements.
+        modelBuilder.Entity<MeasurementSession>()
+            .HasMany(session => session.Measurements)
+            .WithOne(measurement => measurement.MeasurementSession)
+            .HasForeignKey(measurement => measurement.MeasurementSessionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Each device can participate in many sessions and each session
+        // can contain many devices.
+        modelBuilder.Entity<MeasurementSessionDevice>()
+            .HasKey(item => new
+            {
+                item.MeasurementSessionId,
+                item.DeviceId
+            });
+
+        modelBuilder.Entity<MeasurementSessionDevice>()
+            .HasOne(item => item.MeasurementSession)
+            .WithMany(session => session.Participants)
+            .HasForeignKey(item => item.MeasurementSessionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<MeasurementSessionDevice>()
+            .HasOne(item => item.Device)
+            .WithMany(device => device.SessionMemberships)
+            .HasForeignKey(item => item.DeviceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Makes "all sessions involving this device" efficient.
+        modelBuilder.Entity<MeasurementSessionDevice>()
+            .HasIndex(item => item.DeviceId);
+
+        // Makes session/device history queries efficient.
+        modelBuilder.Entity<Measurement>()
+            .HasIndex(measurement => new
+            {
+                measurement.MeasurementSessionId,
+                measurement.DeviceId,
+                measurement.MeasuredAt
+            });
+
 
         // This index makes queries such as "all JV measurements for P3,
         // newest first" efficient as the measurement database grows.

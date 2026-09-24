@@ -8,6 +8,9 @@ public class Measurement
 
     public Guid DeviceId { get; set; }
     public Device Device { get; set; } = null!;
+    
+    public Guid? MeasurementSessionId { get; set; }
+    public MeasurementSession? MeasurementSession { get; set; }
 
     public MeasurementType Type { get; set; }
 

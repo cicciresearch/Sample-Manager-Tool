@@ -4,6 +4,8 @@ namespace Cicci.SampleManager.Api;
 
 public class CommonMeasurementRequest
 {
+    public Guid? MeasurementSessionId { get; set; }
+
     public DateTimeOffset? MeasuredAt { get; set; }
 
     [MaxLength(2000)]

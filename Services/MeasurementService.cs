@@ -32,6 +32,7 @@ public class MeasurementService
         return new Measurement
         {
             DeviceId = deviceId,
+            MeasurementSessionId = common.MeasurementSessionId,
             Type = type,
 
             MeasuredAt = common.MeasuredAt?.UtcDateTime

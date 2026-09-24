@@ -35,6 +35,55 @@ public class SampleManagerApiController : ControllerBase
         });
     }
 
+    // Validates that a measurement can be added to the requested session.
+    private async Task<IActionResult?> ValidateMeasurementSessionAsync(
+        Guid deviceId,
+        Guid? measurementSessionId)
+    {
+        if (!measurementSessionId.HasValue)
+            return null;
+
+        var session = await _database.MeasurementSessions
+            .AsNoTracking()
+            .Where(session =>
+                session.Id == measurementSessionId.Value)
+            .Select(session => new
+            {
+                session.Status,
+
+                DeviceIsParticipant =
+                    session.Participants.Any(participant =>
+                        participant.DeviceId == deviceId)
+            })
+            .FirstOrDefaultAsync();
+
+        if (session == null)
+        {
+            return NotFound(new
+            {
+                error = "Measurement session not found."
+            });
+        }
+
+        // if (session.Status != MeasurementSessionStatus.Running)
+        // {
+        //     return Conflict(new
+        //     {
+        //         error = "Measurement session is not running."
+        //     });
+        // }
+
+        if (!session.DeviceIsParticipant)
+        {
+            return BadRequest(new
+            {
+                error = "Device does not belong to this measurement session."
+            });
+        }
+
+        return null;
+    }
+
     // Checks that both the web API and the SQLite database are reachable.
     [HttpGet("health")]
     public async Task<IActionResult> GetHealthAsync()
@@ -362,6 +411,143 @@ public class SampleManagerApiController : ControllerBase
         });
     }
 
+    // Creates a measurement session for one or more selected devices.
+    [HttpPost("measurement-sessions")]
+    public async Task<IActionResult> CreateMeasurementSessionAsync(
+        [FromBody] CreateMeasurementSessionRequest request)
+    {
+        var deviceIds = request.DeviceIds
+            .Distinct()
+            .ToList();
+
+        if (deviceIds.Count == 0)
+        {
+            return BadRequest(new
+            {
+                error = "At least one device is required."
+            });
+        }
+
+        var existingDeviceIds = await _database.Devices
+            .AsNoTracking()
+            .Where(device =>
+                deviceIds.Contains(device.Id))
+            .Select(device =>
+                device.Id)
+            .ToListAsync();
+
+        var missingDeviceIds = deviceIds
+            .Except(existingDeviceIds)
+            .ToList();
+
+        if (missingDeviceIds.Count > 0)
+        {
+            return BadRequest(new
+            {
+                error = "One or more devices do not exist.",
+                missingDeviceIds
+            });
+        }
+
+        var session = new MeasurementSession
+        {
+            Name = string.IsNullOrWhiteSpace(request.Name)
+                ? null
+                : request.Name.Trim(),
+
+            Type = request.Type,
+
+            Status =
+                MeasurementSessionStatus.Running,
+
+            StartedAt =
+                request.StartedAt?.UtcDateTime
+                    ?? DateTime.UtcNow,
+
+            Notes = string.IsNullOrWhiteSpace(request.Notes)
+                ? null
+                : request.Notes.Trim()
+        };
+
+        foreach (var deviceId in deviceIds)
+        {
+            session.Participants.Add(
+                new MeasurementSessionDevice
+                {
+                    DeviceId = deviceId
+                });
+        }
+
+        _database.MeasurementSessions.Add(session);
+
+        await _database.SaveChangesAsync();
+
+        return StatusCode(
+            StatusCodes.Status201Created,
+            new
+            {
+                id = session.Id,
+                type = session.Type.ToString(),
+                status = session.Status.ToString(),
+                startedAt = session.StartedAt,
+                deviceIds
+            });
+    }
+
+    // Returns one measurement session and its participating devices.
+    [HttpGet("measurement-sessions/{id:guid}")]
+    public async Task<IActionResult> GetMeasurementSessionAsync(
+        Guid id)
+    {
+        var session = await _database.MeasurementSessions
+            .AsNoTracking()
+            .Where(session =>
+                session.Id == id)
+            .Select(session => new
+            {
+                id = session.Id,
+                name = session.Name,
+                type = session.Type,
+                status = session.Status,
+                startedAt = session.StartedAt,
+                endedAt = session.EndedAt,
+                notes = session.Notes,
+
+                devices = session.Participants
+                    .OrderBy(participant =>
+                        participant.Device.Sample.Code)
+                    .ThenBy(participant =>
+                        participant.Device.Pixel)
+                    .Select(participant => new
+                    {
+                        id = participant.Device.Id,
+                        sampleId =
+                            participant.Device.SampleId,
+
+                        sampleCode =
+                            participant.Device.Sample.Code,
+
+                        pixel =
+                            participant.Device.Pixel
+                    })
+                    .ToList(),
+
+                measurementCount =
+                    session.Measurements.Count
+            })
+            .FirstOrDefaultAsync();
+
+        if (session == null)
+        {
+            return NotFound(new
+            {
+                error = "Measurement session not found."
+            });
+        }
+
+        return Ok(session);
+    }
+
     // Stores one JV measurement with common and JV-specific data.
     [HttpPost("devices/{deviceId:guid}/measurements/jv")]
     public async Task<IActionResult> CreateJvMeasurementAsync(
@@ -375,6 +561,14 @@ public class SampleManagerApiController : ControllerBase
                 error = "Device not found."
             });
         }
+
+        var sessionError =
+            await ValidateMeasurementSessionAsync(
+                deviceId,
+                request.Common.MeasurementSessionId);
+
+        if (sessionError != null)
+            return sessionError;
 
         var measurement = _measurementService.CreateBaseMeasurement(
             deviceId,
