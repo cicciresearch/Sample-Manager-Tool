@@ -18,5 +18,8 @@ public class Device
     public string Notes { get; set; } = "";
 
     public ICollection<Measurement> Measurements { get; set; } = new List<Measurement>();
-    public ICollection<MeasurementSessionDevice> SessionMemberships { get; set; } = new List<MeasurementSessionDevice>();
+
+    // A device can participate in many different measurement sessions over its lifetime.
+    public ICollection<MeasurementSessionDevice> SessionMemberships { get; set; }
+        = new List<MeasurementSessionDevice>();
 }

@@ -8,7 +8,8 @@ public class Measurement
 
     public Guid DeviceId { get; set; }
     public Device Device { get; set; } = null!;
-    
+
+    // Optional session relationship. Standalone measurements leave this foreign key NULL.
     public Guid? MeasurementSessionId { get; set; }
     public MeasurementSession? MeasurementSession { get; set; }
 

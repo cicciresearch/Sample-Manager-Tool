@@ -32,6 +32,9 @@ public class MeasurementService
         return new Measurement
         {
             DeviceId = deviceId,
+
+            // ARKEO reuses the same optional session GUID for all measurements
+            // belonging to one experiment, regardless of measurement type.
             MeasurementSessionId = common.MeasurementSessionId,
             Type = type,
 
