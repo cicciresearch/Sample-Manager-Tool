@@ -2,6 +2,7 @@ using Cicci.SampleManager.Models;
 using Cicci.SampleManager.Measurements.JV;
 using Cicci.SampleManager.Measurements.EQE;
 using Cicci.SampleManager.Measurements.EIS;
+using Cicci.SampleManager.Measurements.DarkJV;
 
 
 namespace Cicci.SampleManager.Measurements.Common;
@@ -18,7 +19,9 @@ public static class MeasurementRegistry
             [MeasurementType.EQE] =
                 new EqeDefinition(),
             [MeasurementType.EIS] =
-                new EisDefinition()
+                new EisDefinition(),
+            [MeasurementType.DarkJV] =
+                new DarkJvDefinition()
         };
 
     // Returns the definition registered for one measurement type.

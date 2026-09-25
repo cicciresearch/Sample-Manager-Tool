@@ -24,6 +24,7 @@ public class SampleDbContext : DbContext
     public DbSet<JvMeasurement> JvMeasurements => Set<JvMeasurement>();
     public DbSet<EqeMeasurement> EqeMeasurements => Set<EqeMeasurement>();
     public DbSet<EisMeasurement> EisMeasurements => Set<EisMeasurement>();
+    public DbSet<DarkJvMeasurement> darkjvMeasurements => Set<DarkJvMeasurement>();
 
     public DbSet<MeasurementSession> MeasurementSessions => Set<MeasurementSession>();
     public DbSet<MeasurementSessionDevice> MeasurementSessionDevices => Set<MeasurementSessionDevice>();
@@ -205,6 +206,14 @@ public class SampleDbContext : DbContext
             .HasForeignKey<EisMeasurement>(eis => eis.MeasurementId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<DarkJvMeasurement>()
+            .HasKey(darkjv => darkjv.MeasurementId);
+
+        modelBuilder.Entity<Measurement>()
+            .HasOne(measurement => measurement.DarkJV)
+            .WithOne(darkjv => darkjv.Measurement)
+            .HasForeignKey<DarkJvMeasurement>(darkjv => darkjv.MeasurementId)
+            .OnDelete(DeleteBehavior.Cascade);
 
     }
 }

@@ -4,5 +4,6 @@ public enum MeasurementType
 {
     JV,
     EQE,
-    EIS
+    EIS,
+    DarkJV
 }

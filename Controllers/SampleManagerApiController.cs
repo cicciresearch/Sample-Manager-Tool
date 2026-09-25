@@ -744,4 +744,34 @@ public class SampleManagerApiController : ControllerBase
 
         return MeasurementCreated(measurement);
     }
+
+    // Stores one DarkJV measurement with common and EIS-specific data.
+    [HttpPost("devices/{deviceId:guid}/measurements/darkjv")]
+    public async Task<IActionResult> CreateDarkJvMeasurementAsync(
+        Guid deviceId,
+        [FromBody] CreateMeasurementRequest<DarkJvMeasurementRequest> request)
+    {
+        if (!await _measurementService.DeviceExistsAsync(deviceId))
+        {
+            return NotFound(new
+            {
+                error = "Device not found."
+            });
+        }
+
+        var measurement = _measurementService.CreateBaseMeasurement(
+            deviceId,
+            MeasurementType.DarkJV,
+            request.Common
+        );
+
+        // measurement.Eis = new EisMeasurement
+        // {
+        //     PeakFrequencyHz = request.Specific.PeakFrequencyHz,
+        // };
+
+        await _measurementService.SaveAsync(measurement);
+
+        return MeasurementCreated(measurement);
+    }
 }

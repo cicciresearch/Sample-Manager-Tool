@@ -19,6 +19,8 @@ public class Measurement
     // unambiguous if data is accessed from systems in different time zones.
     public DateTime MeasuredAt { get; set; } = DateTime.UtcNow;
 
+    public string? SettingsJson { get; set; }
+
     [MaxLength(2000)]
     public string? DataPath { get; set; }
 
@@ -28,4 +30,5 @@ public class Measurement
     public JvMeasurement? Jv { get; set; }
     public EqeMeasurement? Eqe { get; set; }
     public EisMeasurement? Eis { get; set; }
+    public DarkJvMeasurement? DarkJV { get; set; }
 }

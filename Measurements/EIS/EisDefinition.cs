@@ -4,11 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Cicci.SampleManager.Measurements.EIS;
 
-// Functions to implement:
-// MeasurementPresentation GetPresentation(Measurement measurement);
-// double? GetStatisticValue(Measurement measurement);
-// Task<IReadOnlyList<MeasurementPlot>> LoadPlotsAsync(Measurement measurement);
-
 public class EisDefinition : IMeasurementDefinition
 {
     // Variables
