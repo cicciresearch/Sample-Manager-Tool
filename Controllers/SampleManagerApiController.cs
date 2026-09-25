@@ -698,6 +698,14 @@ public class SampleManagerApiController : ControllerBase
             });
         }
 
+        var sessionError =
+            await ValidateMeasurementSessionAsync(
+                deviceId,
+                request.Common.MeasurementSessionId);
+
+        if (sessionError != null)
+            return sessionError;
+
         var measurement = _measurementService.CreateBaseMeasurement(
             deviceId,
             MeasurementType.EQE,
@@ -729,6 +737,14 @@ public class SampleManagerApiController : ControllerBase
             });
         }
 
+        var sessionError =
+            await ValidateMeasurementSessionAsync(
+                deviceId,
+                request.Common.MeasurementSessionId);
+
+        if (sessionError != null)
+            return sessionError;
+
         var measurement = _measurementService.CreateBaseMeasurement(
             deviceId,
             MeasurementType.EIS,
@@ -759,6 +775,14 @@ public class SampleManagerApiController : ControllerBase
             });
         }
 
+        var sessionError =
+            await ValidateMeasurementSessionAsync(
+                deviceId,
+                request.Common.MeasurementSessionId);
+
+        if (sessionError != null)
+            return sessionError;
+            
         var measurement = _measurementService.CreateBaseMeasurement(
             deviceId,
             MeasurementType.DarkJV,

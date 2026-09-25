@@ -23,6 +23,7 @@ public class Measurement
 
     [MaxLength(2000)]
     public string? DataPath { get; set; }
+    public ICollection<MeasurementArtifact> Artifacts { get; set; } = new List<MeasurementArtifact>();
 
     [MaxLength(2000)]
     public string? Notes { get; set; }

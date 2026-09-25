@@ -53,7 +53,7 @@ public class DarkJvDefinition : IMeasurementDefinition
 
     public double? GetStatisticValue(Measurement measurement)
     {
-        return measurement.DarkJV?.PeakElEqePercent;
+        return null;
     }
 
     public async Task<IReadOnlyList<MeasurementPlot>> LoadPlotsAsync(Measurement measurement)

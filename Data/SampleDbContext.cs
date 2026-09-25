@@ -24,8 +24,12 @@ public class SampleDbContext : DbContext
     public DbSet<JvMeasurement> JvMeasurements => Set<JvMeasurement>();
     public DbSet<EqeMeasurement> EqeMeasurements => Set<EqeMeasurement>();
     public DbSet<EisMeasurement> EisMeasurements => Set<EisMeasurement>();
-    public DbSet<DarkJvMeasurement> darkjvMeasurements => Set<DarkJvMeasurement>();
+    public DbSet<DarkJvMeasurement> DarkJvMeasurements => Set<DarkJvMeasurement>();
 
+    //Additional measurement files
+    public DbSet<MeasurementArtifact> MeasurementArtifacts => Set<MeasurementArtifact>();
+
+    //Related to measurement session
     public DbSet<MeasurementSession> MeasurementSessions => Set<MeasurementSession>();
     public DbSet<MeasurementSessionDevice> MeasurementSessionDevices => Set<MeasurementSessionDevice>();
 
@@ -100,6 +104,21 @@ public class SampleDbContext : DbContext
                 layer.Position
             })
             .IsUnique();
+
+        // A measurement can optionally produce additional files besides DataPath.
+        modelBuilder.Entity<Measurement>()
+            .HasMany(measurement => measurement.Artifacts)
+            .WithOne(artifact => artifact.Measurement)
+            .HasForeignKey(artifact => artifact.MeasurementId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Makes lookup of a particular artifact kind within one measurement efficient.
+        modelBuilder.Entity<MeasurementArtifact>()
+            .HasIndex(artifact => new
+            {
+                artifact.MeasurementId,
+                artifact.Kind
+            });
 
         // A Device can have any number of measurements over its lifetime.
         modelBuilder.Entity<Device>()

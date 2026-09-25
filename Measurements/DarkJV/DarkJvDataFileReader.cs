@@ -24,14 +24,14 @@ public static class DarkJvDataFileReader
 
         ArkeoFile file = await ArkeoFileReader.ReadAsync(dataPath);
 
-        double[] Voltage = file.Data[0];
-        double[] Current = file.Data[1];
+        double[] voltage = file.Data[0];
+        double[] current = file.Data[1];
 
-        for(int i = 0; i < Voltage.Length; i++)
+        for(int i = 0; i < voltage.Length; i++)
         {
             result.DarkJV.Add(new DarkJvPlotPoint{
-                X = Voltage[i],
-                Y = Current[i]
+                X = voltage[i],
+                Y = current[i]
                 }
             );
         }
